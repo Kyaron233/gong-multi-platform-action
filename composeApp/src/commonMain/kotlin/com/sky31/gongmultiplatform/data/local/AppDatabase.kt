@@ -1,0 +1,36 @@
+package com.sky31.gongmultiplatform.data.local
+
+import androidx.room.Database
+import androidx.room.RoomDatabase
+import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import com.sky31.gongmultiplatform.data.local.dao.AcademicDao
+import com.sky31.gongmultiplatform.data.local.dao.ConfigDao
+import com.sky31.gongmultiplatform.data.local.dao.CourseDao
+import com.sky31.gongmultiplatform.data.local.dao.ExamDao
+import com.sky31.gongmultiplatform.data.local.dao.PublicDao
+import com.sky31.gongmultiplatform.data.local.domain.AcademicEntity
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+
+@Database(
+    entities = [AcademicEntity::class],
+    version = 1
+)
+abstract class AppDatabase: RoomDatabase()  {
+    abstract fun getAcademicDao(): AcademicDao
+    abstract fun getCourseDao(): CourseDao
+    abstract fun getExamDao(): ExamDao
+    abstract fun getPublicDao(): PublicDao
+    abstract fun getConfigDao(): ConfigDao
+}
+
+fun getAppDatabase(
+    builder: RoomDatabase.Builder<AppDatabase>
+): AppDatabase {
+    return builder
+        .addMigrations()
+        .fallbackToDestructiveMigrationOnDowngrade(true)
+        .setDriver(BundledSQLiteDriver())
+        .setQueryCoroutineContext(Dispatchers.IO)
+        .build()
+}
