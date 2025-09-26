@@ -9,11 +9,15 @@ import com.sky31.gongmultiplatform.data.local.dao.CourseDao
 import com.sky31.gongmultiplatform.data.local.dao.ExamDao
 import com.sky31.gongmultiplatform.data.local.dao.PublicDao
 import com.sky31.gongmultiplatform.data.local.domain.AcademicEntity
+import com.sky31.gongmultiplatform.data.local.domain.ConfigEntity
+import com.sky31.gongmultiplatform.data.local.domain.CourseEntity
+import com.sky31.gongmultiplatform.data.local.domain.ExamEntity
+import com.sky31.gongmultiplatform.data.local.domain.PublicEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 
 @Database(
-    entities = [AcademicEntity::class],
+    entities = [AcademicEntity::class, CourseEntity::class, ConfigEntity::class, ExamEntity::class, PublicEntity::class],
     version = 1
 )
 abstract class AppDatabase: RoomDatabase()  {
