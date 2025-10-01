@@ -1,7 +1,7 @@
 package com.sky31.gongmultiplatform.network.repository
 
+import com.sky31.gongmultiplatform.model.CalendarData
 import com.sky31.gongmultiplatform.model.ClassroomData
-import com.sky31.gongmultiplatform.network.resources.Calendar
 import com.sky31.gongmultiplatform.util.NetworkResult
 
 interface PublicRepository {
@@ -10,5 +10,5 @@ interface PublicRepository {
 
     suspend fun getTomorrowClassroom(): NetworkResult<ClassroomData>
 
-    suspend fun getCalendar(): NetworkResult<Calendar>
+    suspend fun getCalendar(): NetworkResult<CalendarData>
 }

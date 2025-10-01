@@ -5,22 +5,16 @@ import com.sky31.gongmultiplatform.network.repository.AcademicRepositoryImpl
 import com.sky31.gongmultiplatform.network.repository.AuthRepositoryImpl
 import com.sky31.gongmultiplatform.network.repository.CourseRepositoryImpl
 import com.sky31.gongmultiplatform.network.repository.ExamRepositoryImpl
+import com.sky31.gongmultiplatform.network.repository.NotificationRepositoryImpl
 import com.sky31.gongmultiplatform.network.repository.PublicRepositoryImpl
-import io.ktor.client.HttpClient
 import org.koin.dsl.module
 
 val networkModule = module {
-    single {
-        HttpClientProvider.client
-
-        AcademicRepositoryImpl(get<HttpClient>())
-
-        ExamRepositoryImpl(get<HttpClient>())
-
-        CourseRepositoryImpl(get<HttpClient>())
-
-        PublicRepositoryImpl(get<HttpClient>())
-
-        AuthRepositoryImpl(get<HttpClient>())
-    }
+    single { HttpClientProvider }
+    single<AcademicRepositoryImpl> { AcademicRepositoryImpl(get<HttpClientProvider>().client) }
+    single<ExamRepositoryImpl> { ExamRepositoryImpl(get<HttpClientProvider>().client) }
+    single<CourseRepositoryImpl> { CourseRepositoryImpl(get<HttpClientProvider>().client) }
+    single<PublicRepositoryImpl> { PublicRepositoryImpl(get<HttpClientProvider>().client) }
+    single<AuthRepositoryImpl> { AuthRepositoryImpl(get<HttpClientProvider>().client) }
+    single<NotificationRepositoryImpl> { NotificationRepositoryImpl() }
 }

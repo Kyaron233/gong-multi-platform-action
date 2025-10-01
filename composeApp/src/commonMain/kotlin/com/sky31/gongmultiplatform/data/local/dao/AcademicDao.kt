@@ -18,6 +18,9 @@ interface AcademicDao {
     @Query("SELECT major_score from academicEntity")
     suspend fun getMajorScore(): String?
 
+    @Query("SELECT minor_score from academicEntity")
+    suspend fun getMinorScore(): String?
+
     @Query("SELECT compulsory_rank from academicEntity")
     suspend fun getCompulsoryRank(): String?
 

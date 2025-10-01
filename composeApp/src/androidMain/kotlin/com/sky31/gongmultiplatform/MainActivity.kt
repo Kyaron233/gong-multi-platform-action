@@ -7,7 +7,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.sky31.gongmultiplatform.di.networkModule
-import com.sky31.gongmultiplatform.module.androidModule
+import com.sky31.gongmultiplatform.di.repositoryModule
+import com.sky31.gongmultiplatform.di.securityModule
+import com.sky31.gongmultiplatform.module.androidDatabaseModule
+import com.sky31.gongmultiplatform.module.androidSecurityModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 
@@ -18,9 +21,13 @@ class MainActivity : ComponentActivity() {
 
         startKoin {
             androidContext(this@MainActivity.applicationContext)
-            modules(
-                androidModule, networkModule
-            )
+            modules(listOf(
+                repositoryModule,
+                androidDatabaseModule,
+                androidSecurityModule,
+                securityModule,
+                networkModule
+            ))
         }
 
         setContent {

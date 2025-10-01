@@ -13,6 +13,14 @@ interface AcademicDataRepository {
         minorScore: ScoreData? = null,
     )
 
+    suspend fun getMajorScore(): ScoreData?
+
+    suspend fun getMinorScore(): ScoreData?
+
+    suspend fun getTotalRank(): RankData?
+
+    suspend fun getCompulsoryRank(): RankData?
+
     suspend fun getAcademicData(): AcademicData?
 
     suspend fun deleteAllAcademicData()

@@ -1,0 +1,146 @@
+package com.sky31.gongmultiplatform.ui.viewModel
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.sky31.gongmultiplatform.data.repository.CourseDataRepositoryImpl
+import com.sky31.gongmultiplatform.data.repository.ExamDataRepositoryImpl
+import com.sky31.gongmultiplatform.data.repository.PublicDataRepositoryImpl
+import com.sky31.gongmultiplatform.model.CalendarData
+import com.sky31.gongmultiplatform.model.CourseElem
+import com.sky31.gongmultiplatform.model.ExamElem
+import com.sky31.gongmultiplatform.network.repository.CourseRepositoryImpl
+import com.sky31.gongmultiplatform.network.repository.ExamRepositoryImpl
+import com.sky31.gongmultiplatform.network.repository.PublicRepositoryImpl
+import com.sky31.gongmultiplatform.util.DataState
+import com.sky31.gongmultiplatform.util.NetworkResult
+import com.sky31.gongmultiplatform.util.codeToDataState
+import com.sky31.gongmultiplatform.util.getCourseList
+import com.sky31.gongmultiplatform.util.toCourseMap
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
+
+@OptIn(ExperimentalTime::class)
+class MainViewModel: ViewModel(), KoinComponent {
+
+    private val courseRepository: CourseRepositoryImpl by inject()
+    private val examRepository: ExamRepositoryImpl by inject()
+    private val publicRepository: PublicRepositoryImpl by inject()
+
+    private val courseDataRepository: CourseDataRepositoryImpl by inject()
+    private val examDataRepository: ExamDataRepositoryImpl by inject()
+    private val publicDataRepository: PublicDataRepositoryImpl by inject()
+
+    private val _currentTime = MutableStateFlow(Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()))
+    val currentTime = _currentTime.asStateFlow()
+
+    private val _courseList = MutableStateFlow<List<CourseElem>>(emptyList())
+    val courseList = _courseList.asStateFlow()
+
+    private val _completedCourseNum = MutableStateFlow(0)
+    val completedCourseNum = _completedCourseNum.asStateFlow()
+
+    private val _examList = MutableStateFlow<List<ExamElem>>(emptyList())
+    val examList = _examList.asStateFlow()
+
+    private val _calendar = MutableStateFlow<CalendarData?>(null)
+    val calendar = _calendar.asStateFlow()
+
+    private val _progression = MutableStateFlow(-1f)
+    val progression = _progression.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            getCalendarFromLocal()
+            getCourseListFromLocal()
+            getExamListFromLocal()
+        }
+    }
+
+    fun refreshCurrentTime() {
+        _currentTime.value = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+    }
+
+    suspend fun updateCourseList(): DataState {
+        when(val result = courseRepository.getCourses()) {
+            is NetworkResult.Success -> {
+                courseDataRepository.insertCourseMap(toCourseMap(result.data))
+
+                getCourseListFromLocal()
+
+                return DataState.Newest
+            }
+
+            is NetworkResult.Error -> {
+                return codeToDataState(result.code)
+            }
+        }
+    }
+
+    private suspend fun getCourseListFromLocal() {
+        courseDataRepository.getCourseMap()?.let { courseMap ->
+            calendar.value?.let { calendar ->
+                _courseList.value = getCourseList(courseMap, calendar, currentTime.value)
+            }
+        }
+    }
+
+    suspend fun updateExamList(): DataState {
+        when(val result = examRepository.getExamList()) {
+            is NetworkResult.Success -> {
+                examDataRepository.insertExamData(result.data)
+
+                getExamListFromLocal()
+
+                return DataState.Newest
+            }
+
+            is NetworkResult.Error -> {
+                return codeToDataState(result.code)
+            }
+        }
+    }
+
+    private suspend fun getExamListFromLocal() {
+        examDataRepository.getExamList()?.let {
+            _examList.value = it
+        }
+    }
+
+    suspend fun updateCalendar(): DataState {
+        when(val result = publicRepository.getCalendar()) {
+            is NetworkResult.Success -> {
+                publicDataRepository.insertPublicData(calendar = result.data)
+
+                getCalendarFromLocal()
+
+                return DataState.Newest
+            }
+
+            is NetworkResult.Error -> {
+                return codeToDataState(result.code)
+            }
+        }
+    }
+
+    suspend fun getCalendarFromLocal() {
+        publicDataRepository.getCalendar()?.let {
+            _calendar.value = it
+        }
+    }
+
+    fun setProgression(progression: Float) {
+        _progression.value = progression
+    }
+
+    fun setCompletedNum(num: Int) {
+        _completedCourseNum.value = num
+    }
+}
+

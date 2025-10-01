@@ -1,8 +1,8 @@
 package com.sky31.gongmultiplatform.network.repository
 
+import com.sky31.gongmultiplatform.model.CalendarData
 import com.sky31.gongmultiplatform.model.ClassroomData
 import com.sky31.gongmultiplatform.network.api.PublicApiImpl
-import com.sky31.gongmultiplatform.network.resources.Calendar
 import com.sky31.gongmultiplatform.util.NetworkResult
 import com.sky31.gongmultiplatform.util.safeApiCall
 import io.ktor.client.HttpClient
@@ -40,8 +40,8 @@ class PublicRepositoryImpl(
         }
     }
 
-    override suspend fun getCalendar(): NetworkResult<Calendar> {
-        val result = safeApiCall<Calendar> { api.getCalendar() }
+    override suspend fun getCalendar(): NetworkResult<CalendarData> {
+        val result = safeApiCall<CalendarData> { api.getCalendar() }
 
         return when(result) {
             is NetworkResult.Success ->

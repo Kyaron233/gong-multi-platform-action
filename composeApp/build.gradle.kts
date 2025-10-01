@@ -62,6 +62,7 @@ kotlin {
             implementation(libs.ktor.client.json)
             implementation(libs.ktor.client.serialization)
             implementation(libs.ktor.client.resources)
+            implementation(libs.ktor.client.logging)
 
             implementation(project.dependencies.platform(libs.koin.bom))
             implementation(libs.koin.core)
@@ -70,6 +71,13 @@ kotlin {
             implementation(libs.androidx.sqlite.bundled)
 
             implementation(libs.kotlinx.serialization.json)
+
+            implementation(libs.navigation.compose)
+
+            implementation(libs.multiplatform.settings)
+
+            implementation(libs.kotlinx.datetime)
+
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -92,7 +100,7 @@ android {
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
-        versionName = "1.0"
+        versionName = "3.1.20251001-beta"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     packaging {

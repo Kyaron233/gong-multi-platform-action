@@ -1,9 +1,14 @@
 package com.sky31.gongmultiplatform.util
 
+import com.sky31.gongmultiplatform.GlobalConfig
 import com.sky31.gongmultiplatform.network.response.ApiResponse
 import io.ktor.client.call.body
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpStatusCode
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 
 val authMsgMap = mapOf(
     HttpStatusCode.Unauthorized to "账号或密码错误",
@@ -60,5 +65,38 @@ suspend inline fun <reified T> safeApiCall(
             exception = e
         )
     }
+}
+
+fun codeToDataState(code: HttpStatusCode?): DataState {
+    return when(code) {
+        HttpStatusCode.Unauthorized -> DataState.Unauthorized
+        HttpStatusCode.NonAuthoritativeInformation -> DataState.Expired
+        HttpStatusCode.Locked -> DataState.Error("账号被锁定")
+        HttpStatusCode.ServiceUnavailable -> DataState.Error("教务系统超时")
+        HttpStatusCode.GatewayTimeout -> DataState.Error("请求超时")
+        else -> DataState.Error("未知错误")
+    }
+}
+
+suspend fun safeApiCallsSequential(
+    calls: List<suspend () -> DataState>
+): List<DataState> = coroutineScope {
+    val deferredResults = calls.map { call ->
+        async {
+            var count = 0
+            while (count < GlobalConfig.MAX_RETRY_TIMES) {
+                val dataState = call()
+                if (dataState is DataState.Expired) {
+                    count++
+                    delay(GlobalConfig.RETRY_INTERVAL)
+                } else {
+                    return@async dataState
+                }
+            }
+            DataState.Error("请求超时")
+        }
+    }
+
+    deferredResults.awaitAll()
 }
 

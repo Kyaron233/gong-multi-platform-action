@@ -1,19 +1,20 @@
 package com.sky31.gongmultiplatform.model
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class ScoreData(
-    val studentId: String,
+    @SerialName("student_id") val studentId: String,
     val name: String,
     val college: String,
     val major: String,
     val scores: List<ScoreElem>,
-    val totalCredit: List<String>,
-    val electiveCredit: List<String>,
-    val compulsoryCredit: List<String>,
-    val crossCourseCredit: List<String>,
-    val averageScore: String,
+    @SerialName("total_credit") val totalCredit: List<String>,
+    @SerialName("elective_credit") val electiveCredit: List<String>,
+    @SerialName("compulsory_credit") val compulsoryCredit: List<String>,
+    @SerialName("cross_course_credit") val crossCourseCredit: List<String>,
+    @SerialName("average_score") val averageScore: String,
     val gpa: String,
     val cet4: String,
     val cet6: String

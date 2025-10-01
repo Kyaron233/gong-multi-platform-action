@@ -1,13 +1,14 @@
 package com.sky31.gongmultiplatform.data.repository
 
 import com.sky31.gongmultiplatform.model.GlobalConfigData
+import com.sky31.gongmultiplatform.ui.theme.ThemeMode
 
 interface ConfigRepository {
 
     suspend fun insertConfig(config: GlobalConfigData)
 
     suspend fun updateConfig(
-        globalConfig: GlobalConfigData? = null
+        themeMode: ThemeMode? = null
     )
 
     suspend fun getGlobalConfig(): GlobalConfigData?

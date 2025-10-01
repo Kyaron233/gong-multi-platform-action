@@ -7,6 +7,14 @@ interface AcademicEntitySource {
 
     suspend fun updateAcademicEntity(entity: AcademicEntity)
 
+    suspend fun getMajorScore(): String?
+
+    suspend fun getMinorScore(): String?
+
+    suspend fun getTotalRank(): String?
+
+    suspend fun getCompulsoryRank(): String?
+
     suspend fun getAcademicEntity(): AcademicEntity?
 
     suspend fun deleteAllAcademicEntities()

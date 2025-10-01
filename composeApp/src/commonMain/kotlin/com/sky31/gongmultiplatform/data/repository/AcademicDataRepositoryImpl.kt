@@ -32,6 +32,30 @@ class AcademicDataRepositoryImpl(
         source.insertAcademicEntity(entity)
     }
 
+    override suspend fun getMajorScore(): ScoreData? {
+        val majorScore = source.getMajorScore()
+
+        return majorScore?.let { Json.decodeFromString(it) }
+    }
+
+    override suspend fun getMinorScore(): ScoreData? {
+        val minorScore = source.getMinorScore()
+
+        return minorScore?.let { Json.decodeFromString(it) }
+    }
+
+    override suspend fun getTotalRank(): RankData? {
+        val totalRank = source.getTotalRank()
+
+        return totalRank?.let { Json.decodeFromString(it) }
+    }
+
+    override suspend fun getCompulsoryRank(): RankData? {
+        val compulsoryRank = source.getCompulsoryRank()
+
+        return compulsoryRank?.let { Json.decodeFromString(it) }
+    }
+
     override suspend fun getAcademicData(): AcademicData? {
         val entity = source.getAcademicEntity()
 

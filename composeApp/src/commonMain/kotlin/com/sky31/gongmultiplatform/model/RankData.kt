@@ -1,17 +1,18 @@
 package com.sky31.gongmultiplatform.model
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class RankData(
     // 平均成绩
-    val averageScore: String,
+    @SerialName("average_score") val averageScore: String,
     // 绩点
     val gpa: String,
     // 班级排名
-    val classRank: Int,
+    @SerialName("class_rank") val classRank: Int,
     // 专业排名
-    val majorRank: Int,
+    @SerialName("major_rank") val majorRank: Int,
     // 学期
     val terms: List<String>
 )
