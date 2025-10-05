@@ -21,6 +21,6 @@ val typography = Typography(
     ),
     labelSmall = TextStyle(
         fontSize = 14.sp,
-        fontWeight = FontWeight(800)
+        fontWeight = FontWeight(500)
     )
 )

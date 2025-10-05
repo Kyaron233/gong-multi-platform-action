@@ -1,5 +1,6 @@
 package com.sky31.gongmultiplatform
 
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -11,6 +12,7 @@ import com.sky31.gongmultiplatform.di.repositoryModule
 import com.sky31.gongmultiplatform.di.securityModule
 import com.sky31.gongmultiplatform.module.androidDatabaseModule
 import com.sky31.gongmultiplatform.module.androidSecurityModule
+import com.sky31.gongmultiplatform.network.service.InstallService
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 
@@ -32,6 +34,15 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             App()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (packageManager.canRequestPackageInstalls()) {
+                InstallService.onPermissionGranted()
+            }
         }
     }
 }

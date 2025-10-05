@@ -10,7 +10,6 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -18,20 +17,18 @@ import androidx.navigation.compose.rememberNavController
 import com.sky31.gongmultiplatform.ui.component.drawer.MainScreenDrawer
 import com.sky31.gongmultiplatform.ui.screen.classroomScreen.ClassroomScreen
 import com.sky31.gongmultiplatform.ui.screen.mainScreen.MainScreen
-import kotlinx.coroutines.launch
 
 
 @Composable
 fun MainLayout() {
     val navController = rememberNavController()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
-    val scope = rememberCoroutineScope()
 
     ModalNavigationDrawer(
         gesturesEnabled = true,
         drawerState = drawerState,
         drawerContent = {
-            MainScreenDrawer { scope.launch { drawerState.close() } }
+            MainScreenDrawer(drawerState)
         }
     ) {
         Scaffold(

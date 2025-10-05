@@ -1,52 +1,67 @@
 package com.sky31.gongmultiplatform.ui.component.drawer
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.DrawerState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.sky31.gongmultiplatform.di.LocalNavController
-import com.sky31.gongmultiplatform.ui.viewModel.AuthViewModel
-import gongmultiplatform.composeapp.generated.resources.Res
-import gongmultiplatform.composeapp.generated.resources.baseline_arrow_back_24
+import com.sky31.gongmultiplatform.network.dto.UpdateDto
+import com.sky31.gongmultiplatform.network.repository.NotificationRepositoryImpl
+import com.sky31.gongmultiplatform.ui.component.rememberDialogState
+import com.sky31.gongmultiplatform.util.DataState
+import com.sky31.gongmultiplatform.util.NetworkResult
+import com.sky31.gongmultiplatform.util.PlatformInfo
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.painterResource
+import org.koin.mp.KoinPlatform.getKoin
 
 /**
  * mainScreen左侧栏
  *
- * @param closeDrawer 关闭drawer
+ * @param state DrawerState
  */
 @Composable
 fun MainScreenDrawer(
-    closeDrawer: () -> Unit
+    state: DrawerState
 ) {
     val scope = rememberCoroutineScope()
-    val authViewModel: AuthViewModel = viewModel { AuthViewModel() }
-    val navController = LocalNavController.current
+    val platformInfo: PlatformInfo = getKoin().get()
+    val notificationRepository: NotificationRepositoryImpl = getKoin().get()
+
+    var updateData by remember { mutableStateOf<UpdateDto?>(null) }
+    val dialogState = rememberDialogState()
+
+    suspend fun checkUpdate(): DataState {
+        val result = notificationRepository.getUpdateNotification()
+
+        when(result) {
+            is NetworkResult.Success -> {
+                updateData = result.data
+                return DataState.Newest
+            }
+            // TODO 获取更新失败
+            is NetworkResult.Error -> {
+                println(result.toString())
+                return DataState.Error(result.message)
+            }
+        }
+    }
 
     Scaffold(
         containerColor = Color.Transparent,
@@ -55,63 +70,7 @@ fun MainScreenDrawer(
             .clip(RoundedCornerShape(topEnd = 15.dp, bottomEnd = 15.dp))
             .background(MaterialTheme.colorScheme.background),
         bottomBar = {
-            Row(
-                modifier = Modifier
-                    .wrapContentHeight()
-                    .fillMaxWidth()
-                    .padding(start = 10.dp, end = 10.dp, bottom = 15.dp, top = 5.dp),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .clip(RoundedCornerShape(10.dp))
-                        .clickable {
-                            scope.launch {
-                                authViewModel.logout()
-                                closeDrawer()
-                                navController.navigate("login")
-                            }
-                        }
-                        .background(MaterialTheme.colorScheme.primary)
-                        .padding(top = 8.dp, bottom = 8.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "退出登录",
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        style = MaterialTheme.typography.labelMedium
-                    )
-                }
-
-                Spacer(
-                    modifier = Modifier
-                        .width(10.dp)
-                )
-
-                IconButton(
-                    onClick = {
-                        closeDrawer()
-                    }
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .clip(RoundedCornerShape(50))
-                            .background(MaterialTheme.colorScheme.primary),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            painter = painterResource(Res.drawable.baseline_arrow_back_24),
-                            contentDescription = "back",
-                            tint = MaterialTheme.colorScheme.onPrimary,
-                            modifier = Modifier
-                                .size(28.dp)
-                        )
-                    }
-                }
-            }
+            DrawerBottomBar(state)
         }
     ) { innerPadding ->
         val top = innerPadding.calculateTopPadding()
@@ -121,6 +80,13 @@ fun MainScreenDrawer(
             modifier = Modifier
                 .padding(top = top, bottom = bottom, start = 8.dp, end = 8.dp)
         ) {
+            updateData?.let {
+                UpdateNotificationDialog(
+                    state = dialogState,
+                    data = it
+                )
+            }
+
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -134,25 +100,29 @@ fun MainScreenDrawer(
                 )
 
                 DrawerMenuItem(
-                    name = "检查更新"
-                )
+                    name = "检查更新",
+                    click = {
+                        scope.launch {
+                            when(checkUpdate()) {
+                                is DataState.Newest ->
+                                    dialogState.show()
+                                else -> {}
+                            }
+                        }
+                    }
+                ) {
+                    Text(
+                        text = platformInfo.getVersionName(),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
             }
 
             Spacer(
                 modifier = Modifier
                     .height(10.dp)
             )
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(MaterialTheme.colorScheme.surface)
-                    .padding(top = 8.dp, bottom = 8.dp),
-            ) {
-
-            }
         }
     }
 }
