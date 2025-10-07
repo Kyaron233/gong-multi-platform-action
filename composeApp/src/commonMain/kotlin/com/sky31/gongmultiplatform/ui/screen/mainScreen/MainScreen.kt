@@ -36,9 +36,9 @@ fun MainScreen(
     val viewModel: MainViewModel = viewModel { MainViewModel() }
 
     LaunchedEffect(Unit) {
-        while (isActive) {
-            delay(60_000)
+        while(isActive) {
             viewModel.refreshCurrentTime()
+            delay(60_000)
         }
     }
 

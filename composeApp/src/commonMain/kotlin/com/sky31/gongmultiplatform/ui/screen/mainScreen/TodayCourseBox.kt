@@ -63,9 +63,6 @@ fun TodayCourseBox(
 
     val scope = rememberCoroutineScope()
 
-    // 已完成课程进度
-    val progression by viewModel.progression.collectAsState()
-
     val completedCourseNum by viewModel.completedCourseNum.collectAsState()
     val currentTime by viewModel.currentTime.collectAsState()
     val courseList by viewModel.courseList.collectAsState()
@@ -128,9 +125,6 @@ fun TodayCourseBox(
 
     // 更新进度条
     LaunchedEffect(courseList, currentTime) {
-        if (courseListState == DataState.Loading || courseListState == DataState.Uninitialized) {
-            return@LaunchedEffect
-        }
         if (courseList.isEmpty()) {
             viewModel.setProgression(1f)
             return@LaunchedEffect
@@ -177,7 +171,7 @@ fun TodayCourseBox(
                     .size(42.dp)
             ) {
                 CircleProgressBar(
-                    target = progression,
+                    targetFlow = viewModel.progression,
                     courseCount = courseList.size
                 )
             }
