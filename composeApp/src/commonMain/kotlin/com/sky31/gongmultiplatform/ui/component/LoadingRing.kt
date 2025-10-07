@@ -1,17 +1,10 @@
 package com.sky31.gongmultiplatform.ui.component
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -23,100 +16,70 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.sky31.gongmultiplatform.util.AnimationState
-import gongmultiplatform.composeapp.generated.resources.Res
-import gongmultiplatform.composeapp.generated.resources.baseline_refresh_24
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun LoadingRing(
     size: Dp = 20.dp,
     strokeWidth: Dp = 3.dp,
     color: Color = MaterialTheme.colorScheme.onBackground,
-    state: AnimationState = AnimationState.Unstarted,
+    duration: Int = 2000
 ) {
+    val rotation = remember { Animatable(0f) }
+    val sweep = remember { Animatable(20f) }
     val startAngle = remember { Animatable(0f) }
-    val sweepAngle = remember { Animatable(240f) }
 
-    LaunchedEffect(state) {
-        if (state == AnimationState.Loading) {
-            while (true) {
-                coroutineScope {
-                    launch {
-                        startAngle.animateTo(
-                            targetValue = 360f,
-                            animationSpec = tween(
-                                durationMillis = 1000,
-                                easing = CubicBezierEasing(0.25f, 0.1f, 0.75f, 0.9f)
-                            )
-                        )
-                        startAngle.snapTo(0f)
-                    }
-
-                    launch {
-                        sweepAngle.animateTo(
-                            targetValue = 270f,
-                            animationSpec = tween(
-                                durationMillis = 400,
-                                easing = CubicBezierEasing(0.25f, 0.1f, 0.75f, 0.9f)
-                            )
-                        )
-
-                        sweepAngle.animateTo(
-                            targetValue = 120f,
-                            animationSpec = tween(
-                                durationMillis = 600,
-                                easing = CubicBezierEasing(0.25f, 0.1f, 0.75f, 0.9f)
-                            )
-                        )
-                    }
+    LaunchedEffect(Unit) {
+        while(true) {
+            coroutineScope {
+                launch {
+                    sweep.animateTo(
+                        targetValue = 290f,
+                        animationSpec = tween(durationMillis = duration / 2, easing = LinearEasing)
+                    )
                 }
-            }
-        } else {
-            startAngle.snapTo(0f)
-            sweepAngle.snapTo(240f)
-        }
-    }
-
-    AnimatedContent(
-        targetState = state,
-        transitionSpec = {
-            scaleIn(
-                initialScale = 0.4f
-            ) + fadeIn() togetherWith
-            scaleOut(
-                targetScale = 0.4f
-            ) + fadeOut()
-        },
-        label = "refreshIconTransition"
-    ) { target ->
-        if (target !== AnimationState.Loading) {
-            Icon(
-                painter = painterResource(Res.drawable.baseline_refresh_24),
-                contentDescription = "refresh",
-                tint = color,
-                modifier = Modifier
-                    .size(size)
-            )
-        } else {
-            Canvas(
-                modifier = Modifier
-                    .size(size)
-            ) {
-                val diameter = size.toPx()
-                val stroke = strokeWidth.toPx()
-
-                drawArc(
-                    color = color,
-                    startAngle = startAngle.value,
-                    sweepAngle = sweepAngle.value,
-                    useCenter = false,
-                    style = Stroke(width = stroke, cap = StrokeCap.Round),
-                    size = Size(diameter, diameter)
+                // 2️⃣ rotation 持续旋转
+                launch {
+                    rotation.animateTo(
+                        targetValue = rotation.value + 360f,
+                        animationSpec = tween(durationMillis = duration, easing = LinearEasing)
+                    )
+                }
+                // 等扩张结束
+                delay(duration / 2L)
+                // 3️⃣ sweep 从 290 → 0（收缩），startAngle 同步前移
+                launch {
+                    startAngle.animateTo(
+                        targetValue = startAngle.value + 290f,
+                        animationSpec = tween(durationMillis = duration / 2, easing = LinearEasing)
+                    )
+                }
+                sweep.animateTo(
+                    targetValue = 20f,
+                    animationSpec = tween(durationMillis = duration / 2, easing = LinearEasing)
                 )
             }
         }
+    }
+
+    Canvas(
+        modifier = Modifier
+            .size(size)
+    ) {
+        val diameter = size.toPx()
+        val stroke = strokeWidth.toPx()
+
+        val start = (startAngle.value + rotation.value) % 360
+
+        drawArc(
+            color = color,
+            startAngle = start,
+            sweepAngle = sweep.value,
+            useCenter = false,
+            style = Stroke(width = stroke, cap = StrokeCap.Round),
+            size = Size(diameter, diameter)
+        )
     }
 }

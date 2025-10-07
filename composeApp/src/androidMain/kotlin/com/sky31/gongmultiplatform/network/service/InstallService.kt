@@ -9,12 +9,10 @@ import androidx.core.net.toUri
 import com.sky31.gongmultiplatform.network.HttpClientProvider
 import com.sky31.gongmultiplatform.network.api.ResourceApiImpl
 import io.ktor.client.statement.bodyAsChannel
-import io.ktor.utils.io.readRemaining
+import io.ktor.utils.io.jvm.javaio.copyTo
 import kotlinx.coroutines.CancellableContinuation
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.coroutines.withContext
-import kotlinx.io.readByteArray
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.io.File
@@ -31,25 +29,16 @@ actual object InstallService: KoinComponent {
 
     private var continuation: CancellableContinuation<Unit>? = null
 
-    actual suspend fun downloadApk(url: String) {
+    actual suspend fun downloadApk(url: String): Flow<Int> {
         try {
-            val outputFile = File(context.cacheDir, "release.zip")
-            val response = resourceApi.getApkZip(url)
-            val channel = response.bodyAsChannel()
-
-            withContext(Dispatchers.IO) {
-                outputFile.outputStream().use {fileStream ->
-                    while(!channel.isClosedForRead) {
-                        val packet = channel.readRemaining(DEFAULT_BUFFER_SIZE.toLong())
-                        while(!packet.exhausted()) {
-                            val bytes = packet.readByteArray()
-                            fileStream.write(bytes)
-                        }
-                    }
+            return resourceApi.getApkZip(url) {response ->
+                val outputFile = File(context.cacheDir, "release.zip")
+                outputFile.outputStream().use { fileOutputStream ->
+                    response.bodyAsChannel().copyTo(fileOutputStream)
                 }
-            }
 
-            unzip()
+                unzip()
+            }
         } catch (e: Exception) {
             throw e
         }

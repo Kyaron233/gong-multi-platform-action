@@ -43,7 +43,7 @@ import androidx.compose.ui.unit.sp
 import com.sky31.gongmultiplatform.di.LocalNavController
 import com.sky31.gongmultiplatform.ui.component.CircleProgressBar
 import com.sky31.gongmultiplatform.ui.component.CustomScrollBox
-import com.sky31.gongmultiplatform.ui.component.LoadingRing
+import com.sky31.gongmultiplatform.ui.component.DataLoadingRing
 import com.sky31.gongmultiplatform.ui.viewModel.MainViewModel
 import com.sky31.gongmultiplatform.util.AnimationState
 import com.sky31.gongmultiplatform.util.CourseState
@@ -242,7 +242,7 @@ fun TodayCourseBox(
                     }
                 }
             ) {
-                LoadingRing(
+                DataLoadingRing(
                     state = refreshState
                 )
             }

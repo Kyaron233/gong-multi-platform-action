@@ -4,7 +4,7 @@ import kotlinx.coroutines.flow.Flow
 
 
 expect object InstallService {
-    suspend fun downloadApk(url: String)
+    suspend fun downloadApk(url: String): Flow<Int>
 
     suspend fun installApk()
 }

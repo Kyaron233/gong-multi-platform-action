@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.sky31.gongmultiplatform.util.AppUpdateState
 
 class DialogState(
     initial: Boolean = false
