@@ -8,12 +8,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.sky31.gongmultiplatform.network.dto.UpdateDto
 import com.sky31.gongmultiplatform.network.repository.NotificationRepositoryImpl
+import com.sky31.gongmultiplatform.ui.component.ContinuousScrollText
 import com.sky31.gongmultiplatform.ui.component.LoadingRing
 import com.sky31.gongmultiplatform.ui.component.rememberDialogState
 import com.sky31.gongmultiplatform.util.AppUpdateState
@@ -136,7 +137,9 @@ fun MainScreenDrawer(
                     }
                 ) {
                     Row(
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .width(17.dp)
                     ) {
                         AnimatedVisibility(
                             visible = loadingRingVisible,
@@ -145,13 +148,13 @@ fun MainScreenDrawer(
                         ) {
                             LoadingRing(size = 12.dp)
                         }
-
-                        Text(
-                            text = platformInfo.getVersionName(),
-                            color = MaterialTheme.colorScheme.onSurface,
-                            style = MaterialTheme.typography.bodySmall
-                        )
                     }
+
+                    ContinuousScrollText(
+                        text = platformInfo.getVersionName(),
+                        modifier = Modifier
+                            .fillMaxWidth(0.5f),
+                    )
                 }
             }
 
