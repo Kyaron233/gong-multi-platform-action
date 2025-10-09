@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,6 +14,8 @@ import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -123,15 +126,22 @@ fun AcademicScreen(navController: NavController) {
                 .background(MaterialTheme.colorScheme.background)
                 .padding(innerPadding)
         ) {
-            HorizontalPager(
-                state = pagerState,
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
-            ) { page ->
-                if (page == 0) {
-                    MainInfoSubScreen(viewModel)
-                } else {
-                    ScoreSubScreen(viewModel)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                ) { page ->
+                    if (page == 0) {
+                        MainInfoSubScreen(viewModel)
+                    } else {
+                        ScoreSubScreen(viewModel)
+                    }
                 }
             }
         }

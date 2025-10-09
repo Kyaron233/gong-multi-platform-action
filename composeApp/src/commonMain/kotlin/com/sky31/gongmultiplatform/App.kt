@@ -13,10 +13,8 @@ import com.sky31.gongmultiplatform.ui.screen.courseScreen.CourseScreen
 import com.sky31.gongmultiplatform.ui.screen.loginScreen.LoginScreen
 import com.sky31.gongmultiplatform.ui.viewModel.AuthViewModel
 import com.sky31.gongmultiplatform.util.AuthState
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
-@Preview
 fun App() {
     val navController = rememberNavController()
     val authViewModel: AuthViewModel = viewModel { AuthViewModel() }

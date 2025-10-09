@@ -27,13 +27,15 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,16 +51,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.sky31.gongmultiplatform.ui.viewModel.CourseViewModel
 import com.sky31.gongmultiplatform.util.CustomTime
-import com.sky31.gongmultiplatform.util.DataState
 import com.sky31.gongmultiplatform.util.customTimeToString
 import com.sky31.gongmultiplatform.util.getStartTime
 import com.sky31.gongmultiplatform.util.reverseWeekdayNameMap
 import com.sky31.gongmultiplatform.util.weekdayNameMapCN
 import gongmultiplatform.composeapp.generated.resources.Res
 import gongmultiplatform.composeapp.generated.resources.baseline_arrow_back_ios_new_24
-import gongmultiplatform.composeapp.generated.resources.error
-import gongmultiplatform.composeapp.generated.resources.expired
-import gongmultiplatform.composeapp.generated.resources.newest
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
@@ -70,6 +68,7 @@ import org.jetbrains.compose.resources.painterResource
  *
  * @param navController 导航控制器
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CourseScreen(navController: NavController) {
     val colorScheme = MaterialTheme.colorScheme
@@ -80,25 +79,9 @@ fun CourseScreen(navController: NavController) {
 
     val calendar by viewModel.calendar.collectAsState()
 
-    // 课程表数据状态
-    val courseMapState by viewModel.courseMapState.collectAsState()
-
     // 周次选择列表状态
     var weekListState by remember { mutableStateOf(false) }
-
-    // 数据状态icon id
-    val stateIconResource by remember {
-        derivedStateOf {
-            when (courseMapState) {
-                is DataState.Uninitialized -> Res.drawable.expired
-                is DataState.Newest -> Res.drawable.newest
-                is DataState.Expired -> Res.drawable.expired
-                is DataState.Loading -> Res.drawable.expired
-                is DataState.Error,
-                is DataState.Unauthorized -> Res.drawable.error
-            }
-        }
-    }
+    var refreshing by remember { mutableStateOf(false) }
 
     // HorizontalPager的状态
     val pagerState = rememberPagerState(
@@ -110,16 +93,17 @@ fun CourseScreen(navController: NavController) {
         pagerState.scrollToPage(currentWeekNum.toInt() - 1)
     }
 
+    LaunchedEffect(Unit) {
+        refreshing = true
+        viewModel.update()
+        refreshing = false
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
-    ) {
-        Spacer(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.primary)
-        )
-    }
+            .background(MaterialTheme.colorScheme.primary)
+    )
 
     Scaffold(
         modifier = Modifier
@@ -218,133 +202,144 @@ fun CourseScreen(navController: NavController) {
                     )
 
                     Spacer(modifier = Modifier.weight(1f))
-
-                    Image(
-                        modifier = Modifier
-                            .width(20.dp)
-                            .height(20.dp)
-                            .clickable {
-                                navController.navigate("main")
-                            },
-                        painter = painterResource(stateIconResource),
-                        contentDescription = "state"
-                    )
                 }
             }
         }
     ) { innerPadding ->
-        HorizontalPager(
+        PullToRefreshBox(
+            isRefreshing = refreshing,
+            onRefresh = {
+                scope.launch {
+                    refreshing = true
+                    viewModel.update()
+                    refreshing = false
+                }
+            },
             modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
                 .padding(innerPadding),
-            state = pagerState,
-        ) { page ->
-            val courseMap by viewModel.getWeekCourseMap(page.toLong() + 1).collectAsState(initial = null)
-
-            if (calendar !== null && courseMap !== null) {
-                Row(
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+            ) {
+                HorizontalPager(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.background),
-                ) {
-                    // 左侧时间表
-                    Column(
-                        modifier = Modifier
-                            .width(42.dp)
-                            .fillMaxHeight(),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        val weekStart = LocalDate.parse(calendar!!.start)
-                        weekStart.plus(DatePeriod(days = page * 7))
-                        val startTime = getStartTime(weekStart)
+                        .fillMaxWidth()
+                        .weight(1f),
+                    state = pagerState,
+                ) { page ->
+                    val courseMap by viewModel.getWeekCourseMap(page.toLong() + 1).collectAsState(initial = null)
 
-                        // 月份box
-                        Box(
+                    if (calendar !== null && courseMap !== null) {
+                        Row(
                             modifier = Modifier
-                                .height(40.dp)
-                                .fillMaxWidth()
-                                .background(MaterialTheme.colorScheme.surface),
-                            contentAlignment = Alignment.Center
+                                .fillMaxSize()
+                                .background(MaterialTheme.colorScheme.background),
                         ) {
-                            Text(
-                                text = "${weekStart.month.ordinal + 1}",
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                        }
-
-                        startTime.forEachIndexed { index, start ->
-                            val end = CustomTime(
-                                hour = start.hour + (start.minute + 45) / 60,
-                                minute = (start.minute + 45) % 60
-                            )
+                            // 左侧时间表
                             Column(
                                 modifier = Modifier
-                                    .weight(1f)
-                                    .fillMaxWidth()
-                                    .padding(top = 1.dp, bottom = 1.dp)
-                                    .background(MaterialTheme.colorScheme.surface),
-                                verticalArrangement = Arrangement.SpaceEvenly,
+                                    .width(42.dp)
+                                    .fillMaxHeight(),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                Text(
-                                    text = customTimeToString(start),
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    style = MaterialTheme.typography.labelSmall
-                                )
-                                Text(
-                                    text = customTimeToString(end),
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    style = MaterialTheme.typography.labelSmall
-                                )
-                            }
+                                var weekStart = LocalDate.parse(calendar!!.start)
+                                weekStart = weekStart.plus(DatePeriod(days = page * 7))
+                                val startTime = getStartTime(weekStart)
 
-                            // 中午和晚上的间隔
-                            if (index == 3 || index == 7) {
-                                Spacer(
+                                // 月份box
+                                Box(
                                     modifier = Modifier
-                                        .height(5.dp)
+                                        .height(40.dp)
                                         .fillMaxWidth()
-                                        .background(MaterialTheme.colorScheme.primary)
-                                )
-                            }
-                        }
-                    }
+                                        .background(MaterialTheme.colorScheme.surface),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = "${weekStart.month.ordinal + 1}",
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                }
 
-                    // 遍历周一至周日
-                    courseMap!!.keys.forEachIndexed { index, item ->
-                        CourseColumn(
-                            modifier = Modifier
-                                .fillMaxHeight()
-                                .weight(1f),
-                            courseList = courseMap!![item]?.sortedBy { course -> course.startTime }
-                                ?: listOf(),
-                        ) {
-                            Column(
-                                modifier = Modifier
-                                    .height(40.dp)
-                                    .fillMaxWidth()
-                                    .padding(start = 1.dp, end = 1.dp)
-                                    .background(MaterialTheme.colorScheme.surface),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center
-                            ) {
-                                val date = LocalDate.parse(calendar!!.start).plus(DatePeriod(days = page * 7 + index))
-
-                                Text(
-                                    text = weekdayNameMapCN.getValue(
-                                        reverseWeekdayNameMap.getValue(
-                                            item
+                                startTime.forEachIndexed { index, start ->
+                                    val end = CustomTime(
+                                        hour = start.hour + (start.minute + 45) / 60,
+                                        minute = (start.minute + 45) % 60
+                                    )
+                                    Column(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .fillMaxWidth()
+                                            .padding(top = 1.dp, bottom = 1.dp)
+                                            .background(MaterialTheme.colorScheme.surface),
+                                        verticalArrangement = Arrangement.SpaceEvenly,
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        Text(
+                                            text = customTimeToString(start),
+                                            color = MaterialTheme.colorScheme.onSurface,
+                                            style = MaterialTheme.typography.labelSmall
                                         )
-                                    ),
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
+                                        Text(
+                                            text = customTimeToString(end),
+                                            color = MaterialTheme.colorScheme.onSurface,
+                                            style = MaterialTheme.typography.labelSmall
+                                        )
+                                    }
 
-                                Text(
-                                    text = (date.month.ordinal + 1).toString().padStart(2, '0')
-                                            + "-"
-                                            + date.day.toString().padStart(2, '0'),
-                                    fontSize = 12.sp,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
+                                    // 中午和晚上的间隔
+                                    if (index == 3 || index == 7) {
+                                        Spacer(
+                                            modifier = Modifier
+                                                .height(5.dp)
+                                                .fillMaxWidth()
+                                                .background(MaterialTheme.colorScheme.primary)
+                                        )
+                                    }
+                                }
+                            }
+
+                            // 遍历周一至周日
+                            courseMap!!.keys.forEachIndexed { index, item ->
+                                CourseColumn(
+                                    modifier = Modifier
+                                        .fillMaxHeight()
+                                        .weight(1f),
+                                    courseList = courseMap!![item]?.sortedBy { course -> course.startTime }
+                                        ?: listOf(),
+                                ) {
+                                    Column(
+                                        modifier = Modifier
+                                            .height(40.dp)
+                                            .fillMaxWidth()
+                                            .padding(start = 1.dp, end = 1.dp)
+                                            .background(MaterialTheme.colorScheme.surface),
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        verticalArrangement = Arrangement.Center
+                                    ) {
+                                        val date = LocalDate.parse(calendar!!.start).plus(DatePeriod(days = page * 7 + index))
+
+                                        Text(
+                                            text = weekdayNameMapCN.getValue(
+                                                reverseWeekdayNameMap.getValue(
+                                                    item
+                                                )
+                                            ),
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+
+                                        Text(
+                                            text = (date.month.ordinal + 1).toString().padStart(2, '0')
+                                                    + "-"
+                                                    + date.day.toString().padStart(2, '0'),
+                                            fontSize = 12.sp,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
