@@ -7,6 +7,7 @@ import com.sky31.gongmultiplatform.data.repository.AcademicDataRepositoryImpl
 import com.sky31.gongmultiplatform.data.repository.CourseDataRepositoryImpl
 import com.sky31.gongmultiplatform.data.repository.ExamDataRepositoryImpl
 import com.sky31.gongmultiplatform.data.repository.PublicDataRepositoryImpl
+import com.sky31.gongmultiplatform.data.repository.UserInfoDataRepositoryImpl
 import com.sky31.gongmultiplatform.model.bearerTokenStorage
 import com.sky31.gongmultiplatform.network.HttpClientProvider
 import com.sky31.gongmultiplatform.network.repository.AuthRepositoryImpl
@@ -25,6 +26,7 @@ class AuthViewModel: ViewModel(), KoinComponent {
     private val academicDataRepository: AcademicDataRepositoryImpl by inject()
     private val courseDataRepository: CourseDataRepositoryImpl by inject()
     private val examDataRepository: ExamDataRepositoryImpl by inject()
+    private val userInfoDataRepository: UserInfoDataRepositoryImpl by inject()
 
     private val authRepository: AuthRepositoryImpl by inject()
     private val settings: Settings by inject()
@@ -77,6 +79,7 @@ class AuthViewModel: ViewModel(), KoinComponent {
         academicDataRepository.deleteAllAcademicData()
         courseDataRepository.deleteAllCourses()
         examDataRepository.deleteAllExams()
+        userInfoDataRepository.deleteAllUserInfo()
 
         bearerTokenStorage.clear()
         HttpClientProvider.client.authProvider<BearerAuthProvider>()?.clearToken()

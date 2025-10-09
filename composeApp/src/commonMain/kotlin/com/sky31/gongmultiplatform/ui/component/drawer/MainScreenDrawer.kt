@@ -14,7 +14,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,19 +29,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.sky31.gongmultiplatform.network.dto.UpdateDto
-import com.sky31.gongmultiplatform.network.repository.NotificationRepositoryImpl
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sky31.gongmultiplatform.ui.component.ContinuousScrollText
 import com.sky31.gongmultiplatform.ui.component.LoadingRing
 import com.sky31.gongmultiplatform.ui.component.rememberDialogState
+import com.sky31.gongmultiplatform.ui.viewModel.DrawerViewModel
 import com.sky31.gongmultiplatform.util.AppUpdateState
 import com.sky31.gongmultiplatform.util.DataState
-import com.sky31.gongmultiplatform.util.NetworkResult
-import com.sky31.gongmultiplatform.util.PlatformInfo
 import com.sky31.gongmultiplatform.util.Toast
 import com.sky31.gongmultiplatform.util.getAppUpdateState
 import kotlinx.coroutines.launch
-import org.koin.mp.KoinPlatform.getKoin
 
 /**
  * mainScreen左侧栏
@@ -49,33 +49,26 @@ import org.koin.mp.KoinPlatform.getKoin
 fun MainScreenDrawer(
     state: DrawerState
 ) {
-    val scope = rememberCoroutineScope()
-    val platformInfo: PlatformInfo = getKoin().get()
-    val notificationRepository: NotificationRepositoryImpl = getKoin().get()
+    val viewModel: DrawerViewModel = viewModel { DrawerViewModel() }
 
-    var updateData by remember { mutableStateOf<UpdateDto?>(null) }
+    val scope = rememberCoroutineScope()
+    val dialogState = rememberDialogState()
+
+    val platformInfo = viewModel.platformInfo
+    val updateData by viewModel.updateData.collectAsState()
+    val userInfo by viewModel.userInfo.collectAsState()
+
+    var loadingRingVisible by remember { mutableStateOf(false) }
+
     val appUpdateState by remember {
         derivedStateOf {
             updateData?.let { getAppUpdateState(platformInfo.getVersionName(), it.lastVersion, it.leastVersion) }
         }
     }
 
-    val dialogState = rememberDialogState()
-
-    var loadingRingVisible by remember { mutableStateOf(false) }
-
-    suspend fun checkUpdate(): DataState {
-        val result = notificationRepository.getUpdateNotification()
-
-        when(result) {
-            is NetworkResult.Success -> {
-                updateData = result.data
-                return DataState.Newest
-            }
-            is NetworkResult.Error -> {
-                println(result.toString())
-                return DataState.Error(result.message)
-            }
+    LaunchedEffect(state.isOpen) {
+        if(state.isOpen) {
+            viewModel.update()
         }
     }
 
@@ -104,6 +97,20 @@ fun MainScreenDrawer(
                 )
             }
 
+            DrawerUserInfo(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                userInfo = userInfo
+            )
+
+            Text(
+                text = "关于",
+                color = MaterialTheme.colorScheme.onBackground,
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier
+                    .padding(top = 10.dp, bottom = 10.dp)
+            )
+
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -113,15 +120,11 @@ fun MainScreenDrawer(
                     .padding(top = 8.dp, bottom = 8.dp),
             ) {
                 DrawerMenuItem(
-                    name = "用户条款"
-                )
-
-                DrawerMenuItem(
                     name = "检查更新",
                     click = {
                         scope.launch {
                             loadingRingVisible = true
-                            val result = checkUpdate()
+                            val result = viewModel.checkUpdate()
                             loadingRingVisible = false
 
                             when(result) {
@@ -156,6 +159,18 @@ fun MainScreenDrawer(
                             .fillMaxWidth(0.5f),
                     )
                 }
+
+                DrawerMenuItem(
+                    name = "权限申请与使用情况说明"
+                )
+
+                DrawerMenuItem(
+                    name = "隐私政策"
+                )
+
+                DrawerMenuItem(
+                    name = "用户条款"
+                )
             }
 
             Spacer(

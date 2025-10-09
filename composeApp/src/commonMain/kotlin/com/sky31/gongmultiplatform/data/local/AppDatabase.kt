@@ -8,17 +8,19 @@ import com.sky31.gongmultiplatform.data.local.dao.ConfigDao
 import com.sky31.gongmultiplatform.data.local.dao.CourseDao
 import com.sky31.gongmultiplatform.data.local.dao.ExamDao
 import com.sky31.gongmultiplatform.data.local.dao.PublicDao
+import com.sky31.gongmultiplatform.data.local.dao.UserInfoDao
 import com.sky31.gongmultiplatform.data.local.domain.AcademicEntity
 import com.sky31.gongmultiplatform.data.local.domain.ConfigEntity
 import com.sky31.gongmultiplatform.data.local.domain.CourseEntity
 import com.sky31.gongmultiplatform.data.local.domain.ExamEntity
 import com.sky31.gongmultiplatform.data.local.domain.PublicEntity
+import com.sky31.gongmultiplatform.data.local.domain.UserInfoEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 
 @Database(
-    entities = [AcademicEntity::class, CourseEntity::class, ConfigEntity::class, ExamEntity::class, PublicEntity::class],
-    version = 1
+    entities = [AcademicEntity::class, CourseEntity::class, ConfigEntity::class, ExamEntity::class, PublicEntity::class, UserInfoEntity::class],
+    version = 2
 )
 abstract class AppDatabase: RoomDatabase()  {
     abstract fun getAcademicDao(): AcademicDao
@@ -26,6 +28,8 @@ abstract class AppDatabase: RoomDatabase()  {
     abstract fun getExamDao(): ExamDao
     abstract fun getPublicDao(): PublicDao
     abstract fun getConfigDao(): ConfigDao
+
+    abstract fun getUserInfoDao(): UserInfoDao
 }
 
 fun getAppDatabase(
@@ -33,7 +37,7 @@ fun getAppDatabase(
 ): AppDatabase {
     return builder
         .addMigrations()
-        .fallbackToDestructiveMigrationOnDowngrade(true)
+        .fallbackToDestructiveMigration(true)
         .setDriver(BundledSQLiteDriver())
         .setQueryCoroutineContext(Dispatchers.IO)
         .build()

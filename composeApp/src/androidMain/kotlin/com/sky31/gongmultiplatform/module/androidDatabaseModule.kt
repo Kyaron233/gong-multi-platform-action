@@ -6,6 +6,7 @@ import com.sky31.gongmultiplatform.data.local.dao.ConfigDao
 import com.sky31.gongmultiplatform.data.local.dao.CourseDao
 import com.sky31.gongmultiplatform.data.local.dao.ExamDao
 import com.sky31.gongmultiplatform.data.local.dao.PublicDao
+import com.sky31.gongmultiplatform.data.local.dao.UserInfoDao
 import com.sky31.gongmultiplatform.data.local.getAppDatabase
 import com.sky31.gongmultiplatform.db.getDatabaseBuilder
 import org.koin.android.ext.koin.androidContext
@@ -20,4 +21,5 @@ val androidDatabaseModule = module {
     single<ExamDao> { get<AppDatabase>().getExamDao() }
     single<PublicDao> { get<AppDatabase>().getPublicDao() }
     single<ConfigDao> { get<AppDatabase>().getConfigDao() }
+    single<UserInfoDao> { get<AppDatabase>().getUserInfoDao() }
 }

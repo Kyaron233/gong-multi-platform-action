@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.sky31.gongmultiplatform.ui.viewModel.DrawerViewModel
 import com.sky31.gongmultiplatform.ui.viewModel.MainViewModel
 import gongmultiplatform.composeapp.generated.resources.Res
 import gongmultiplatform.composeapp.generated.resources.menu_icon
@@ -34,12 +35,17 @@ fun MainScreen(
 ) {
     val scope = rememberCoroutineScope()
     val viewModel: MainViewModel = viewModel { MainViewModel() }
+    val drawerViewModel: DrawerViewModel = viewModel { DrawerViewModel() }
 
     LaunchedEffect(Unit) {
         while(isActive) {
             viewModel.refreshCurrentTime()
             delay(60_000)
         }
+    }
+
+    LaunchedEffect(Unit) {
+        drawerViewModel.update()
     }
 
     Column(
