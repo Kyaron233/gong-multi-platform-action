@@ -2,6 +2,7 @@ package com.sky31.gongmultiplatform.ui.screen.academicScreen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -62,7 +63,10 @@ fun AcademicBottomBar(pagerState: PagerState) {
                 Text(
                     modifier = Modifier
                         .weight(1f)
-                        .clickable {
+                        .clickable(
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() }
+                        ) {
                             scope.launch { pagerState.animateScrollToPage(0) }
                         },
                     text = "学业总览",
@@ -72,7 +76,10 @@ fun AcademicBottomBar(pagerState: PagerState) {
                 Text(
                     modifier = Modifier
                         .weight(1f)
-                        .clickable {
+                        .clickable(
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() }
+                        ) {
                             scope.launch { pagerState.animateScrollToPage(1) }
                         },
                     text = "成绩表单",
