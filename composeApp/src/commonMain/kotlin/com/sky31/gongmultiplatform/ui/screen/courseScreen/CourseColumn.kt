@@ -1,6 +1,7 @@
 package com.sky31.gongmultiplatform.ui.screen.courseScreen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -16,8 +17,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sky31.gongmultiplatform.model.CourseElem
 import com.sky31.gongmultiplatform.ui.theme.CourseColor
+import com.sky31.gongmultiplatform.ui.viewModel.CourseViewModel
 import kotlin.math.absoluteValue
 
 /**
@@ -44,7 +47,6 @@ fun CourseColumn(
     courseList: List<CourseElem> = emptyList(),
     content: @Composable () -> Unit
 ) {
-
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -95,6 +97,7 @@ fun CourseColumnFragment(
     start: Int,
     end: Int
 ) {
+    val viewModel: CourseViewModel = viewModel { CourseViewModel() }
 
     Column(
         modifier = modifier
@@ -112,6 +115,11 @@ fun CourseColumnFragment(
                         .weight(course.duration.toFloat())
                         .padding(4.dp)
                         .clip(RoundedCornerShape(4.dp))
+                        .clickable {
+                            println(123654564)
+                            viewModel.setSheetCourse(course)
+                            viewModel.showSheet()
+                        }
                         .background(generateCourseColor(course.name))
                         .padding(2.dp)
                 ) {

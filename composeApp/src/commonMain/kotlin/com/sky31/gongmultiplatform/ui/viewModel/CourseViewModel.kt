@@ -37,6 +37,12 @@ class CourseViewModel: ViewModel(), KoinComponent {
 
     private val _courseMap = MutableStateFlow(mapOf<String, List<CourseElem>>())
 
+    private val _sheetCourse = MutableStateFlow<CourseElem?>(null)
+    val sheetCourse = _sheetCourse.asStateFlow()
+
+    private val _sheetVisible = MutableStateFlow<Boolean>(false)
+    val sheetVisible = _sheetVisible.asStateFlow()
+
     private val _calendar = MutableStateFlow<CalendarData?>(null)
     val calendar = _calendar.asStateFlow()
 
@@ -141,5 +147,17 @@ class CourseViewModel: ViewModel(), KoinComponent {
 
             resultMap
         }
+    }
+
+    fun showSheet() {
+        _sheetVisible.value = true
+    }
+
+    fun hideSheet() {
+        _sheetVisible.value = false
+    }
+
+    fun setSheetCourse(course: CourseElem) {
+        _sheetCourse.value = course
     }
 }

@@ -36,7 +36,7 @@ fun App() {
                     MainLayout()
                 }
                 composable("courseScreen") {
-                    CourseScreen(navController)
+                    CourseScreen()
                 }
                 composable("academicScreen") {
                     AcademicScreen(navController)
