@@ -30,8 +30,8 @@ fun <T> LoadingButton(
         .background(MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(10.dp)),
     text: String,
     call: suspend () -> T,
-    done: (result: T) -> Unit,
-    textStyle: TextStyle = MaterialTheme.typography.labelSmall
+    done: (result: T) -> Unit = { },
+    textStyle: TextStyle = MaterialTheme.typography.labelSmall,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val scope = rememberCoroutineScope()

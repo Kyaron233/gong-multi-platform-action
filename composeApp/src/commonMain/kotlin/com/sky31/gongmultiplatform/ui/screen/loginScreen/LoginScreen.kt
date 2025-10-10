@@ -23,8 +23,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,7 +31,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.sky31.gongmultiplatform.ui.component.LoadingButton
 import com.sky31.gongmultiplatform.ui.viewModel.AuthViewModel
 import com.sky31.gongmultiplatform.util.AuthState
 import gongmultiplatform.composeapp.generated.resources.Res
@@ -56,24 +54,22 @@ import gongmultiplatform.composeapp.generated.resources.login_logo
 import gongmultiplatform.composeapp.generated.resources.password_invisible
 import gongmultiplatform.composeapp.generated.resources.password_visible
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun LoginScreen(
     navController: NavController
 ) {
-    val scope = rememberCoroutineScope()
     val authViewModel: AuthViewModel = viewModel { AuthViewModel() }
 
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var clickable by remember { mutableStateOf<LoginButtonState>(LoginButtonState.Clickable) }
+    var enabled by remember { mutableStateOf(true) }
     var alertVisible by remember { mutableStateOf(false) }
     var alertText by remember { mutableStateOf("") }
 
     val animatedColor by animateColorAsState(
-        targetValue = if (clickable == LoginButtonState.Clickable) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
+        targetValue = if (enabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
         animationSpec = tween(200),
         label = "color")
 
@@ -106,11 +102,7 @@ fun LoginScreen(
     }
 
     LaunchedEffect(username, password) {
-        clickable = if(username == "" || password == "") {
-            LoginButtonState.UnClickable
-        } else {
-            LoginButtonState.Clickable
-        }
+        enabled = !(username == "" || password == "")
     }
 
     Column(
@@ -268,34 +260,18 @@ fun LoginScreen(
             .height(80.dp)
         )
 
-        Button(
+        LoadingButton(
             modifier = Modifier
                 .width(170.dp)
+                .height(40.dp)
+                .clip(RoundedCornerShape(50))
+                .background(animatedColor)
                 .align(Alignment.CenterHorizontally),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = animatedColor,
-                contentColor = Color.White
-            ),
-            onClick = {
-                if(clickable == LoginButtonState.Clickable) {
-                    scope.launch {
-                        keyboardController?.hide()
-                        authViewModel.login(username, password)
-                    }
-                }
-            }
-        ) {
-            Text(text = "登录")
-        }
-
+            call = {
+                keyboardController?.hide()
+                authViewModel.login(username, password)
+            },
+            text = "登录"
+        )
     }
-}
-
-/**
- * 登录按钮状态
- */
-sealed class LoginButtonState {
-    data object Clickable: LoginButtonState()
-    data object UnClickable: LoginButtonState()
-    data object Loading: LoginButtonState()
 }
