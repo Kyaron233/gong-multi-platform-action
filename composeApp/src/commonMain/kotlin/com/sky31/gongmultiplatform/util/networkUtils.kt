@@ -9,12 +9,15 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 val authMsgMap = mapOf(
     HttpStatusCode.Unauthorized to "账号或密码错误",
     HttpStatusCode.Conflict to "账号未初始化",
     HttpStatusCode.ServiceUnavailable to "教务系统超时",
-    HttpStatusCode.GatewayTimeout to "请求超时"
+    HttpStatusCode.GatewayTimeout to "请求超时",
+    HttpStatusCode.BadGateway to "网关错误",
 )
 
 val getMsgMap = mapOf(
@@ -33,6 +36,7 @@ suspend inline fun <reified T> safeApiCall(
         val response = apiCall()
         val code = response.status
 
+        println(code.toString())
         return when(code) {
             HttpStatusCode.OK -> {
                 val body = response.body<ApiResponse<T>>()
@@ -45,12 +49,14 @@ suspend inline fun <reified T> safeApiCall(
             HttpStatusCode.Conflict,
             HttpStatusCode.ServiceUnavailable,
             HttpStatusCode.GatewayTimeout,
-            HttpStatusCode.Unauthorized ->
+            HttpStatusCode.Unauthorized,
+            HttpStatusCode.NonAuthoritativeInformation -> {
                 NetworkResult.Error(
                     code = code,
                     message = getMsgMap[code] ?: "Unknown error",
                     exception = Exception("")
                 )
+            }
 
             else -> NetworkResult.Error(
                 code = code,
@@ -89,14 +95,31 @@ suspend fun safeApiCallsSequential(
                 if (dataState is DataState.Expired) {
                     count++
                     delay(GlobalConfig.RETRY_INTERVAL)
+                } else if(dataState is DataState.Unauthorized) {
+                    TokenState.expired()
+                    return@async dataState
                 } else {
                     return@async dataState
                 }
             }
+
             DataState.Error("请求超时")
         }
     }
 
     deferredResults.awaitAll()
+}
+
+object TokenState {
+    private val _isExpired = MutableStateFlow(false)
+    val isExpired = _isExpired.asStateFlow()
+
+    fun expired() {
+        _isExpired.value = true
+    }
+
+    fun refreshed() {
+        _isExpired.value = false
+    }
 }
 

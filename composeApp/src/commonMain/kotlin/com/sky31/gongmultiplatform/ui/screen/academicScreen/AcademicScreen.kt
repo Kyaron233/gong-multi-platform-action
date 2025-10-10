@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.sky31.gongmultiplatform.ui.component.AuthorizationDialog
 import com.sky31.gongmultiplatform.ui.viewModel.AcademicViewModel
 import gongmultiplatform.composeapp.generated.resources.Res
 import gongmultiplatform.composeapp.generated.resources.baseline_arrow_back_ios_new_24
@@ -59,6 +60,7 @@ fun AcademicScreen(navController: NavController) {
         refreshing = false
     }
 
+    AuthorizationDialog()
     Box(
         modifier = Modifier
             .fillMaxSize()
