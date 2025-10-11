@@ -1,6 +1,6 @@
 package com.sky31.gongmultiplatform.network
 
-import com.sky31.gongmultiplatform.GlobalConfig
+import com.sky31.gongmultiplatform.SystemGlobalConfig
 import com.sky31.gongmultiplatform.model.bearerTokenStorage
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.auth.Auth
@@ -55,7 +55,7 @@ object HttpClientProvider {
             defaultRequest {
                 url {
                     protocol = URLProtocol.Companion.HTTP
-                    host = GlobalConfig.HOST
+                    host = SystemGlobalConfig.HOST
                 }
                 contentType(ContentType.Application.Json)
             }

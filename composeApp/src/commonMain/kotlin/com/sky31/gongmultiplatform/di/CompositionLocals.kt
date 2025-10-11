@@ -2,9 +2,9 @@ package com.sky31.gongmultiplatform.di
 
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.navigation.NavController
-import com.sky31.gongmultiplatform.model.GlobalConfigData
+import com.sky31.gongmultiplatform.model.config.GlobalConfig
 
-val LocalGlobalConfig = staticCompositionLocalOf<GlobalConfigData> {
+val LocalGlobalConfig = staticCompositionLocalOf<GlobalConfig> {
     error("No GlobalConfig provided! Please wrap your app with GlobalConfigProvider.")
 }
 

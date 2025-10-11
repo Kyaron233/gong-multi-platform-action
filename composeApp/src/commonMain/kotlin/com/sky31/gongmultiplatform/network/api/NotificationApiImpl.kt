@@ -1,6 +1,6 @@
 package com.sky31.gongmultiplatform.network.api
 
-import com.sky31.gongmultiplatform.GlobalConfig
+import com.sky31.gongmultiplatform.SystemGlobalConfig
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
@@ -21,7 +21,7 @@ class NotificationApiImpl: NotificationApi {
         defaultRequest {
             url {
                 protocol = URLProtocol.Companion.HTTP
-                host = GlobalConfig.UPDATE_HOST
+                host = SystemGlobalConfig.UPDATE_HOST
             }
             contentType(ContentType.Application.Json)
         }

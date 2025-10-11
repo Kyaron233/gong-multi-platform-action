@@ -1,6 +1,6 @@
 package com.sky31.gongmultiplatform.util
 
-import com.sky31.gongmultiplatform.GlobalConfig
+import com.sky31.gongmultiplatform.SystemGlobalConfig
 import com.sky31.gongmultiplatform.network.response.ApiResponse
 import io.ktor.client.call.body
 import io.ktor.client.statement.HttpResponse
@@ -90,11 +90,11 @@ suspend fun safeApiCallsSequential(
     val deferredResults = calls.map { call ->
         async {
             var count = 0
-            while (count < GlobalConfig.MAX_RETRY_TIMES) {
+            while (count < SystemGlobalConfig.MAX_RETRY_TIMES) {
                 val dataState = call()
                 if (dataState is DataState.Expired) {
                     count++
-                    delay(GlobalConfig.RETRY_INTERVAL)
+                    delay(SystemGlobalConfig.RETRY_INTERVAL)
                 } else if(dataState is DataState.Unauthorized) {
                     TokenState.expired()
                     return@async dataState

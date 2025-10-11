@@ -3,7 +3,7 @@ package com.sky31.gongmultiplatform.ui.viewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sky31.gongmultiplatform.data.repository.ConfigRepositoryImpl
-import com.sky31.gongmultiplatform.model.GlobalConfigData
+import com.sky31.gongmultiplatform.model.config.GlobalConfig
 import com.sky31.gongmultiplatform.ui.theme.ThemeMode
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,7 +15,7 @@ class GlobalViewModel: ViewModel(), KoinComponent {
 
     val configRepository: ConfigRepositoryImpl by inject()
 
-    private val _globalConfig = MutableStateFlow(GlobalConfigData())
+    private val _globalConfig = MutableStateFlow(GlobalConfig())
     val globalConfig = _globalConfig.asStateFlow()
 
     init {
@@ -25,7 +25,7 @@ class GlobalViewModel: ViewModel(), KoinComponent {
     }
 
     suspend fun loadConfig() {
-        val globalConfig = configRepository.getGlobalConfig() ?: GlobalConfigData()
+        val globalConfig = configRepository.getGlobalConfig() ?: GlobalConfig()
         _globalConfig.value = globalConfig
     }
 
