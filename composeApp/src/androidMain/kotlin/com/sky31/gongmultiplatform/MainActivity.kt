@@ -10,6 +10,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.sky31.gongmultiplatform.di.networkModule
 import com.sky31.gongmultiplatform.di.repositoryModule
 import com.sky31.gongmultiplatform.di.securityModule
+import com.sky31.gongmultiplatform.di.viewModelModule
 import com.sky31.gongmultiplatform.module.androidDatabaseModule
 import com.sky31.gongmultiplatform.module.androidSecurityModule
 import com.sky31.gongmultiplatform.network.service.InstallService
@@ -28,7 +29,8 @@ class MainActivity : ComponentActivity() {
                 androidDatabaseModule,
                 androidSecurityModule,
                 securityModule,
-                networkModule
+                networkModule,
+                viewModelModule
             ))
         }
 

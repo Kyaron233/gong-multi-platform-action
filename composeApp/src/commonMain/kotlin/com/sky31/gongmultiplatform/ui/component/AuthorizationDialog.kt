@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sky31.gongmultiplatform.di.LocalNavController
 import com.sky31.gongmultiplatform.ui.viewModel.AuthViewModel
+import com.sky31.gongmultiplatform.ui.viewModel.ConfigViewModel
 import com.sky31.gongmultiplatform.util.NetworkResult
 import com.sky31.gongmultiplatform.util.TokenState
 import gongmultiplatform.composeapp.generated.resources.Res
@@ -43,6 +44,7 @@ import gongmultiplatform.composeapp.generated.resources.password_invisible
 import gongmultiplatform.composeapp.generated.resources.password_visible
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
+import org.koin.mp.KoinPlatform.getKoin
 
 @Composable
 fun AuthorizationDialog() {
@@ -50,9 +52,11 @@ fun AuthorizationDialog() {
     val scope = rememberCoroutineScope()
     val navController = LocalNavController.current
     val viewModel: AuthViewModel = viewModel { AuthViewModel() }
+    val configViewModel: ConfigViewModel = getKoin().get<ConfigViewModel>()
 
     val visible by TokenState.isExpired.collectAsState()
     val username by viewModel.username.collectAsState()
+    val reauthentication by configViewModel.reauthentication.collectAsState()
 
     var passwordVisible by remember { mutableStateOf(false) }
     var password by remember { mutableStateOf("") }
@@ -64,10 +68,12 @@ fun AuthorizationDialog() {
     }
 
     LaunchedEffect(visible) {
-        if(visible) {
-            state.show()
-        } else {
-            state.hide()
+        if(reauthentication) {
+            if(visible) {
+                state.show()
+            } else {
+                state.hide()
+            }
         }
     }
 

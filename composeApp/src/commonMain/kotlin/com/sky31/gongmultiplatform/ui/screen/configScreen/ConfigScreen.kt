@@ -27,7 +27,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sky31.gongmultiplatform.di.LocalNavController
 import com.sky31.gongmultiplatform.ui.component.ToggleButton
 import com.sky31.gongmultiplatform.ui.viewModel.ConfigViewModel
@@ -36,19 +35,16 @@ import gongmultiplatform.composeapp.generated.resources.baseline_arrow_back_ios_
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
+import org.koin.mp.KoinPlatform.getKoin
 
 @Composable
 fun ConfigScreen() {
     val lifecycleOwner = LocalLifecycleOwner.current
     val navController = LocalNavController.current
     val scope = rememberCoroutineScope()
-    val viewModel: ConfigViewModel = viewModel { ConfigViewModel() }
+    val viewModel: ConfigViewModel = getKoin().get<ConfigViewModel>()
 
     DisposableEffect(lifecycleOwner) {
-        scope.launch {
-            viewModel.loadConfig()
-        }
-
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_STOP) {
                 scope.launch {
