@@ -1,0 +1,170 @@
+package com.sky31.gongmultiplatform.ui.screen.configScreen
+
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.sky31.gongmultiplatform.di.LocalNavController
+import com.sky31.gongmultiplatform.ui.component.ToggleButton
+import com.sky31.gongmultiplatform.ui.viewModel.ConfigViewModel
+import gongmultiplatform.composeapp.generated.resources.Res
+import gongmultiplatform.composeapp.generated.resources.baseline_arrow_back_ios_new_24
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.painterResource
+
+@Composable
+fun ConfigScreen() {
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val navController = LocalNavController.current
+    val scope = rememberCoroutineScope()
+    val viewModel: ConfigViewModel = viewModel { ConfigViewModel() }
+
+    DisposableEffect(lifecycleOwner) {
+        scope.launch {
+            viewModel.loadConfig()
+        }
+
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_STOP) {
+                scope.launch {
+                    viewModel.updateFunctionalConfig()
+                }
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.primary)
+    )
+
+    Scaffold(
+        modifier = Modifier
+            .safeDrawingPadding(),
+        topBar = {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(40.dp)
+                    .background(MaterialTheme.colorScheme.primary)
+                    .padding(start = 10.dp, end = 10.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Image(
+                        modifier = Modifier
+                            .width(20.dp)
+                            .height(20.dp)
+                            .clickable {
+                                navController.popBackStack()
+                            },
+                        painter = painterResource(Res.drawable.baseline_arrow_back_ios_new_24),
+                        contentDescription = "back_arrow",
+                    )
+                }
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "功能设置",
+                        color = Color.White,
+                        fontSize = 16.sp
+                    )
+                }
+
+            }
+        },
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(innerPadding)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = 16.dp, bottom = 16.dp, start = 15.dp, end = 15.dp)
+            ) {
+                SingleConfigRow(
+                    stateFlow = viewModel.reauthentication,
+                    text = "重新认证",
+                    description = "当请求返回未授权状态时，弹出认证模块。"
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun SingleConfigRow(
+    text: String,
+    description: String,
+    stateFlow: MutableStateFlow<Boolean>
+) {
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = text,
+                color = MaterialTheme.colorScheme.onBackground,
+                style = MaterialTheme.typography.labelMedium
+            )
+
+            ToggleButton(stateFlow)
+        }
+
+        Text(
+            text = description,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.bodySmall
+        )
+    }
+}

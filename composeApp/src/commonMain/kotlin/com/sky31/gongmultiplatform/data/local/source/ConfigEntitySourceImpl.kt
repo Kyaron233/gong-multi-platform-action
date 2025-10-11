@@ -23,6 +23,14 @@ class ConfigEntitySourceImpl(
         return dao.getGlobalConfig()
     }
 
+    override suspend fun getFunctionalConfig(): String? {
+        return dao.getFunctionalConfig()
+    }
+
+    override suspend fun updateFunctionalConfig(config: String) {
+        dao.updateFunctionConfig(config)
+    }
+
     override suspend fun deleteAllConfigs() {
         dao.clearAll()
     }

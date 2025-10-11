@@ -7,5 +7,6 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "configEntity")
 data class ConfigEntity(
     @PrimaryKey val uid: Int? = 1,
-    @ColumnInfo(name = "global_config") val globalConfig: String? = null
+    @ColumnInfo(name = "global_config") val globalConfig: String? = null,
+    @ColumnInfo(name = "functional_config") val functionalConfig: String? = null
 )

@@ -12,5 +12,9 @@ interface ConfigEntitySource {
 
     suspend fun getGlobalConfig(): String?
 
+    suspend fun getFunctionalConfig(): String?
+
+    suspend fun updateFunctionalConfig(config: String)
+
     suspend fun deleteAllConfigs()
 }

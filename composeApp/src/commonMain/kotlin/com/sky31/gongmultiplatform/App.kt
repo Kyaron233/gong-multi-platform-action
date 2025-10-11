@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.sky31.gongmultiplatform.ui.layout.MainLayout
 import com.sky31.gongmultiplatform.ui.screen.academicScreen.AcademicScreen
+import com.sky31.gongmultiplatform.ui.screen.configScreen.ConfigScreen
 import com.sky31.gongmultiplatform.ui.screen.courseScreen.CourseScreen
 import com.sky31.gongmultiplatform.ui.screen.loginScreen.LoginScreen
 import com.sky31.gongmultiplatform.ui.viewModel.AuthViewModel
@@ -40,6 +41,10 @@ fun App() {
                 }
                 composable("academicScreen") {
                     AcademicScreen(navController)
+                }
+
+                composable("configScreen") {
+                    ConfigScreen()
                 }
             }
         }

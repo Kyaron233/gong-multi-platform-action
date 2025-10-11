@@ -20,7 +20,7 @@ import kotlinx.coroutines.IO
 
 @Database(
     entities = [AcademicEntity::class, CourseEntity::class, ConfigEntity::class, ExamEntity::class, PublicEntity::class, UserInfoEntity::class],
-    version = 3
+    version = 4
 )
 abstract class AppDatabase: RoomDatabase()  {
     abstract fun getAcademicDao(): AcademicDao

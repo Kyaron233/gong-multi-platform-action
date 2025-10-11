@@ -8,10 +8,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DrawerState
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -30,6 +32,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.sky31.gongmultiplatform.di.LocalNavController
 import com.sky31.gongmultiplatform.ui.component.ContinuousScrollText
 import com.sky31.gongmultiplatform.ui.component.LoadingRing
 import com.sky31.gongmultiplatform.ui.component.rememberDialogState
@@ -38,7 +41,11 @@ import com.sky31.gongmultiplatform.util.AppUpdateState
 import com.sky31.gongmultiplatform.util.DataState
 import com.sky31.gongmultiplatform.util.Toast
 import com.sky31.gongmultiplatform.util.getAppUpdateState
+import gongmultiplatform.composeapp.generated.resources.Res
+import gongmultiplatform.composeapp.generated.resources.about
+import gongmultiplatform.composeapp.generated.resources.settings
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.painterResource
 
 /**
  * mainScreen左侧栏
@@ -49,6 +56,7 @@ import kotlinx.coroutines.launch
 fun MainScreenDrawer(
     state: DrawerState
 ) {
+    val navController = LocalNavController.current
     val viewModel: DrawerViewModel = viewModel { DrawerViewModel() }
 
     val scope = rememberCoroutineScope()
@@ -103,13 +111,65 @@ fun MainScreenDrawer(
                 userInfo = userInfo
             )
 
-            Text(
-                text = "关于",
-                color = MaterialTheme.colorScheme.onBackground,
-                style = MaterialTheme.typography.titleMedium,
+            Row(
                 modifier = Modifier
-                    .padding(top = 10.dp, bottom = 10.dp)
-            )
+                    .padding(top = 10.dp, bottom = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    painter = painterResource(Res.drawable.settings),
+                    contentDescription = "settings",
+                    tint = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier
+                        .size(32.dp)
+                        .padding(end = 10.dp)
+                )
+
+                Text(
+                    text = "设置",
+                    color = MaterialTheme.colorScheme.onBackground,
+                    style = MaterialTheme.typography.titleMedium,
+                )
+            }
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(top = 8.dp, bottom = 8.dp),
+            ) {
+                DrawerMenuItem(
+                    name = "功能",
+                    click = {
+                        navController.navigate("configScreen")
+                    }
+                )
+            }
+
+            Row(
+                modifier = Modifier
+                    .padding(top = 10.dp, bottom = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    painter = painterResource(Res.drawable.about),
+                    contentDescription = "about",
+                    tint = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier
+                        .size(32.dp)
+                        .padding(end = 10.dp)
+                )
+
+                Text(
+                    text = "关于",
+                    color = MaterialTheme.colorScheme.onBackground,
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier
+                        .padding(top = 10.dp, bottom = 10.dp)
+                )
+            }
 
             Column(
                 modifier = Modifier

@@ -3,6 +3,7 @@ package com.sky31.gongmultiplatform.data.repository
 import com.sky31.gongmultiplatform.data.local.dao.ConfigDao
 import com.sky31.gongmultiplatform.data.local.domain.ConfigEntity
 import com.sky31.gongmultiplatform.data.local.source.ConfigEntitySourceImpl
+import com.sky31.gongmultiplatform.model.config.FunctionalConfig
 import com.sky31.gongmultiplatform.model.config.GlobalConfig
 import com.sky31.gongmultiplatform.ui.theme.ThemeMode
 import kotlinx.serialization.json.Json
@@ -13,9 +14,10 @@ class ConfigRepositoryImpl(
 
     private val source = ConfigEntitySourceImpl(dao)
 
-    override suspend fun insertConfig(config: GlobalConfig) {
+    override suspend fun insertConfig(globalConfig: GlobalConfig, functionalConfig: FunctionalConfig) {
         source.insertConfigEntity(ConfigEntity(
-            globalConfig = Json.encodeToString<GlobalConfig>(config)
+            globalConfig = Json.encodeToString<GlobalConfig>(globalConfig),
+            functionalConfig = Json.encodeToString<FunctionalConfig>(functionalConfig)
         ))
     }
 
@@ -43,8 +45,16 @@ class ConfigRepositoryImpl(
         source.updateConfigEntity(entity)
     }
 
+    override suspend fun updateFunctionalConfig(config: FunctionalConfig) {
+        source.updateFunctionalConfig(Json.encodeToString(config))
+    }
+
     override suspend fun getGlobalConfig(): GlobalConfig? {
         return source.getGlobalConfig()?.let { Json.decodeFromString<GlobalConfig>(it) }
+    }
+
+    override suspend fun getFunctionalConfig(): FunctionalConfig? {
+        return source.getFunctionalConfig()?.let { Json.decodeFromString<FunctionalConfig>(it) }
     }
 
     override suspend fun deleteConfig() {
