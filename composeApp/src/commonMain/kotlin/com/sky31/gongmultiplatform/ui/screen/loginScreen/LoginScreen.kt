@@ -49,6 +49,7 @@ import androidx.navigation.NavController
 import com.sky31.gongmultiplatform.ui.component.LoadingButton
 import com.sky31.gongmultiplatform.ui.viewModel.AuthViewModel
 import com.sky31.gongmultiplatform.util.AuthState
+import com.sky31.gongmultiplatform.util.PlatformOperation
 import gongmultiplatform.composeapp.generated.resources.Res
 import gongmultiplatform.composeapp.generated.resources.login_logo
 import gongmultiplatform.composeapp.generated.resources.password_invisible
@@ -103,6 +104,10 @@ fun LoginScreen(
 
     LaunchedEffect(username, password) {
         enabled = !(username == "" || password == "")
+    }
+
+    PlatformOperation.BackHandler(true) {
+        PlatformOperation.moveToBack()
     }
 
     Column(

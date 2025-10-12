@@ -17,11 +17,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sky31.gongmultiplatform.ui.viewModel.DrawerViewModel
 import com.sky31.gongmultiplatform.ui.viewModel.MainViewModel
+import com.sky31.gongmultiplatform.util.PlatformOperation
 import gongmultiplatform.composeapp.generated.resources.Res
 import gongmultiplatform.composeapp.generated.resources.menu_icon
 import kotlinx.coroutines.delay
@@ -29,6 +31,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun MainScreen(
     drawerState: DrawerState
@@ -46,6 +49,10 @@ fun MainScreen(
 
     LaunchedEffect(Unit) {
         drawerViewModel.update()
+    }
+
+    PlatformOperation.BackHandler(true) {
+        PlatformOperation.moveToBack()
     }
 
     Column(

@@ -16,11 +16,21 @@ import com.sky31.gongmultiplatform.module.androidSecurityModule
 import com.sky31.gongmultiplatform.network.service.InstallService
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
+import java.lang.ref.WeakReference
 
-class MainActivity : ComponentActivity() {
+class MainActivity: ComponentActivity() {
+
+    companion object {
+        private var activityRef: WeakReference<MainActivity>? = null
+
+        fun getInstance(): MainActivity? = activityRef?.get()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+
+        activityRef = WeakReference(this)
 
         startKoin {
             androidContext(this@MainActivity.applicationContext)
