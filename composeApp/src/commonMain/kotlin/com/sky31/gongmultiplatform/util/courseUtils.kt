@@ -17,13 +17,13 @@ val weekdayNameMap = mapOf(
 )
 
 val weekdayNameMapCN = mapOf(
-    1 to "星期一",
-    2 to "星期二",
-    3 to "星期三",
-    4 to "星期四",
-    5 to "星期五",
-    6 to "星期六",
-    7 to "星期日"
+    1 to "周一",
+    2 to "周二",
+    3 to "周三",
+    4 to "周四",
+    5 to "周五",
+    6 to "周六",
+    7 to "周日",
 )
 
 data class CustomTime(

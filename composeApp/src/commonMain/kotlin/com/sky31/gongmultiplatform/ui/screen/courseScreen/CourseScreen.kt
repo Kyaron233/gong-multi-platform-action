@@ -200,7 +200,8 @@ fun CourseScreen() {
                                             .height(40.dp)
                                             .fillMaxWidth()
                                             .padding(start = 1.dp, end = 1.dp)
-                                            .background(MaterialTheme.colorScheme.surface),
+                                            .background(MaterialTheme.colorScheme.surface)
+                                            .padding(top = 2.dp, bottom = 2.dp),
                                         horizontalAlignment = Alignment.CenterHorizontally,
                                         verticalArrangement = Arrangement.Center
                                     ) {
@@ -212,15 +213,16 @@ fun CourseScreen() {
                                                     item
                                                 )
                                             ),
-                                            color = MaterialTheme.colorScheme.onSurface
+                                            color = MaterialTheme.colorScheme.onSurface,
+                                            style = MaterialTheme.typography.labelSmall
                                         )
 
                                         Text(
                                             text = (date.month.ordinal + 1).toString().padStart(2, '0')
                                                     + "-"
                                                     + date.day.toString().padStart(2, '0'),
-                                            fontSize = 12.sp,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            style = MaterialTheme.typography.labelSmall
                                         )
                                     }
                                 }
