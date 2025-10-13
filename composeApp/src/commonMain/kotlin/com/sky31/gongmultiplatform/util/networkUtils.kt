@@ -92,14 +92,20 @@ suspend fun safeApiCallsSequential(
             var count = 0
             while (count < SystemGlobalConfig.MAX_RETRY_TIMES) {
                 val dataState = call()
-                if (dataState is DataState.Expired) {
-                    count++
-                    delay(SystemGlobalConfig.RETRY_INTERVAL)
-                } else if(dataState is DataState.Unauthorized) {
-                    TokenState.expired()
-                    return@async dataState
-                } else {
-                    return@async dataState
+                when (dataState) {
+                    is DataState.Expired -> {
+                        count++
+                        delay(SystemGlobalConfig.RETRY_INTERVAL)
+                    }
+
+                    is DataState.Unauthorized -> {
+                        TokenState.expired()
+                        return@async dataState
+                    }
+
+                    else -> {
+                        return@async dataState
+                    }
                 }
             }
 

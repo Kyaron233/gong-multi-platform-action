@@ -15,6 +15,7 @@ import com.sky31.gongmultiplatform.util.DataState
 import com.sky31.gongmultiplatform.util.NetworkResult
 import com.sky31.gongmultiplatform.util.codeToDataState
 import com.sky31.gongmultiplatform.util.getCourseList
+import com.sky31.gongmultiplatform.util.safeApiCallsSequential
 import com.sky31.gongmultiplatform.util.toCourseMap
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -55,6 +56,12 @@ class MainViewModel: ViewModel(), KoinComponent {
     private val _progression = MutableStateFlow(-1f)
     val progression = _progression.asStateFlow()
 
+    private val _examBoxState = MutableStateFlow<DataState>(DataState.Uninitialized)
+    val examBoxState = _examBoxState.asStateFlow()
+
+    private val _courseBoxState = MutableStateFlow<DataState>(DataState.Uninitialized)
+    val courseBoxState = _courseBoxState.asStateFlow()
+
     init {
         viewModelScope.launch {
             getCalendarFromLocal()
@@ -65,6 +72,32 @@ class MainViewModel: ViewModel(), KoinComponent {
 
     fun refreshCurrentTime() {
         _currentTime.value = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+    }
+
+    suspend fun updateExamBox() {
+        _examBoxState.value = DataState.Loading
+
+        val results = safeApiCallsSequential(
+            calls = listOf(
+                { updateCalendar() },
+                { updateExamList() }
+            )
+        )
+
+        _examBoxState.value = results[1]
+    }
+
+    suspend fun updateCourseBox() {
+        _courseBoxState.value = DataState.Loading
+
+        val results = safeApiCallsSequential(
+            calls = listOf(
+                { updateCalendar() },
+                { updateCourseList() }
+            )
+        )
+
+        _courseBoxState.value = results[1]
     }
 
     suspend fun updateCourseList(): DataState {

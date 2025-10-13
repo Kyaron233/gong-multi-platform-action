@@ -30,6 +30,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
+import org.koin.mp.KoinPlatform.getKoin
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -37,7 +38,7 @@ fun MainScreen(
     drawerState: DrawerState
 ) {
     val scope = rememberCoroutineScope()
-    val viewModel: MainViewModel = viewModel { MainViewModel() }
+    val viewModel: MainViewModel = getKoin().get<MainViewModel>()
     val drawerViewModel: DrawerViewModel = viewModel { DrawerViewModel() }
 
     LaunchedEffect(Unit) {

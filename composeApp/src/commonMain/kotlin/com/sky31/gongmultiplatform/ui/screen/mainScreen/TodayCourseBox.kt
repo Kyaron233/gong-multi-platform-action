@@ -28,10 +28,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -49,7 +47,6 @@ import com.sky31.gongmultiplatform.util.AnimationState
 import com.sky31.gongmultiplatform.util.CourseState
 import com.sky31.gongmultiplatform.util.DataState
 import com.sky31.gongmultiplatform.util.getCourseState
-import com.sky31.gongmultiplatform.util.safeApiCallsSequential
 import gongmultiplatform.composeapp.generated.resources.Res
 import gongmultiplatform.composeapp.generated.resources.course
 import kotlinx.coroutines.launch
@@ -67,10 +64,10 @@ fun TodayCourseBox(
     val currentTime by viewModel.currentTime.collectAsState()
     val courseList by viewModel.courseList.collectAsState()
 
-    var courseListState by remember { mutableStateOf<DataState>(DataState.Uninitialized) }
+    val courseBoxState by viewModel.courseBoxState.collectAsState()
     val refreshState by remember {
         derivedStateOf {
-            when (courseListState) {
+            when (courseBoxState) {
                 is DataState.Loading,
                 is DataState.Expired -> AnimationState.Loading
                 is DataState.Uninitialized -> AnimationState.Unstarted
@@ -81,26 +78,18 @@ fun TodayCourseBox(
 
     val blurValue = remember { Animatable(0f) }
 
-    val update: suspend () -> Unit = {
-        courseListState = DataState.Loading
-
-        val results = safeApiCallsSequential(
-            calls = listOf(
-                { viewModel.updateCalendar() },
-                { viewModel.updateCourseList() }
-            )
-        )
-
-        courseListState = results[1]
-    }
-
     // 获取课表数据
-    LaunchedEffect(Unit) {
-        update()
+    LaunchedEffect(courseBoxState) {
+        if(courseBoxState is DataState.Uninitialized) {
+            // updateCourseBox会修改courseBoxState，导致LaunchedEffect重组，协程会被取消，所以需要使用rememberCoroutineScope的scope
+            scope.launch {
+                viewModel.updateCourseBox()
+            }
+        }
     }
 
-    LaunchedEffect(courseListState) {
-        when(courseListState) {
+    LaunchedEffect(courseBoxState) {
+        when(courseBoxState) {
             is DataState.Loading -> {
                 blurValue.animateTo(
                     targetValue = 10f,
@@ -232,7 +221,7 @@ fun TodayCourseBox(
             IconButton(
                 onClick = {
                     scope.launch {
-                        update()
+                        viewModel.updateCourseBox()
                     }
                 }
             ) {

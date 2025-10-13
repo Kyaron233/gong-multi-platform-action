@@ -28,10 +28,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -44,7 +42,6 @@ import com.sky31.gongmultiplatform.ui.component.DataLoadingRing
 import com.sky31.gongmultiplatform.ui.viewModel.MainViewModel
 import com.sky31.gongmultiplatform.util.AnimationState
 import com.sky31.gongmultiplatform.util.DataState
-import com.sky31.gongmultiplatform.util.safeApiCallsSequential
 import gongmultiplatform.composeapp.generated.resources.Res
 import gongmultiplatform.composeapp.generated.resources.score
 import kotlinx.coroutines.launch
@@ -59,10 +56,10 @@ fun ExamArrangementBox(
 
     val currentTime by viewModel.currentTime.collectAsState()
     val examList by viewModel.examList.collectAsState()
-    var examListState by remember { mutableStateOf<DataState>(DataState.Uninitialized) }
+    val examBoxState by viewModel.examBoxState.collectAsState()
     val refreshState by remember {
         derivedStateOf {
-            when (examListState) {
+            when (examBoxState) {
                 is DataState.Loading -> AnimationState.Loading
                 is DataState.Uninitialized -> AnimationState.Unstarted
                 else -> AnimationState.Finished
@@ -72,25 +69,18 @@ fun ExamArrangementBox(
 
     val blurValue = remember { Animatable(0f) }
 
-    val update: suspend () -> Unit = {
-        examListState = DataState.Loading
-
-        val results = safeApiCallsSequential(
-            calls = listOf(
-                { viewModel.updateCalendar() },
-                { viewModel.updateExamList() }
-            )
-        )
-
-        examListState = results[1]
+    LaunchedEffect(examBoxState) {
+        println(examBoxState.toString())
+        if(examBoxState is DataState.Uninitialized) {
+            // updateExamBox会修改examBoxState，导致LaunchedEffect重组，协程会被取消，所以需要使用rememberCoroutineScope的scope
+            scope.launch {
+                viewModel.updateExamBox()
+            }
+        }
     }
 
-    LaunchedEffect(Unit) {
-        update()
-    }
-
-    LaunchedEffect(examListState) {
-        when(examListState) {
+    LaunchedEffect(examBoxState) {
+        when(examBoxState) {
             is DataState.Loading -> {
                 blurValue.animateTo(
                     targetValue = 10f,
@@ -142,7 +132,7 @@ fun ExamArrangementBox(
             IconButton(
                 onClick = {
                     scope.launch {
-                        update()
+                        viewModel.updateExamBox()
                     }
                 }
             ) {
