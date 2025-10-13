@@ -1,5 +1,13 @@
 package com.sky31.gongmultiplatform
 
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -30,20 +38,202 @@ fun App() {
                 navController = navController,
                 startDestination = if (authViewModel.authState.value is AuthState.Authenticated) "main" else "login"
             ) {
-                composable("login") {
+                composable(
+                    route = "login",
+                    enterTransition = {
+                        slideInVertically(
+                            initialOffsetY = { it / 2 },
+                            animationSpec = tween(
+                                durationMillis = 500,
+                                easing = LinearOutSlowInEasing
+                            )
+                        ) + fadeIn(
+                            animationSpec = tween(
+                                durationMillis = 400,
+                                easing = LinearOutSlowInEasing
+                            )
+                        )
+                    },
+                    exitTransition = {
+                        slideOutVertically(
+                            targetOffsetY = { -it / 2 },
+                            animationSpec = tween(
+                                durationMillis = 500,
+                                easing = LinearOutSlowInEasing
+                            )
+                        ) + fadeOut(
+                            animationSpec = tween(
+                                durationMillis = 400,
+                                easing = LinearOutSlowInEasing
+                            )
+                        )
+                    },
+                ) {
                     LoginScreen(navController)
                 }
-                composable("main") {
+                composable(
+                    route = "main",
+                    enterTransition = {
+                        slideInHorizontally(
+                            initialOffsetX = { -it },
+                            animationSpec = tween(
+                                durationMillis = 400,
+                                easing = LinearOutSlowInEasing
+                            )
+                        )
+                    },
+                    exitTransition = {
+                        slideOutHorizontally(
+                            targetOffsetX = { -it },
+                            animationSpec = tween(
+                                durationMillis = 400,
+                                easing = LinearOutSlowInEasing
+                            )
+                        )
+                    },
+                    popExitTransition = {
+                        slideOutHorizontally(
+                            targetOffsetX = { -it },
+                            animationSpec = tween(
+                                durationMillis = 400,
+                                easing = LinearOutSlowInEasing
+                            )
+                        )
+                    },
+                    popEnterTransition = {
+                        slideInHorizontally(
+                            initialOffsetX = { -it },
+                            animationSpec = tween(
+                                durationMillis = 400,
+                                easing = LinearOutSlowInEasing
+                            )
+                        )
+                    }
+                ) {
                     MainLayout()
                 }
-                composable("courseScreen") {
+                composable(
+                    route = "courseScreen",
+                    enterTransition = {
+                        slideInHorizontally(
+                            initialOffsetX = { it },
+                            animationSpec = tween(
+                                durationMillis = 400,
+                                easing = LinearOutSlowInEasing
+                            )
+                        )
+                    },
+                    exitTransition = {
+                        slideOutHorizontally(
+                            targetOffsetX = { it },
+                            animationSpec = tween(
+                                durationMillis = 400,
+                                easing = LinearOutSlowInEasing
+                            )
+                        )
+                    },
+                    popExitTransition = {
+                        slideOutHorizontally(
+                            targetOffsetX = { it },
+                            animationSpec = tween(
+                                durationMillis = 400,
+                                easing = LinearOutSlowInEasing
+                            )
+                        )
+                    },
+                    popEnterTransition = {
+                        slideInHorizontally(
+                            initialOffsetX = { it },
+                            animationSpec = tween(
+                                durationMillis = 400,
+                                easing = LinearOutSlowInEasing
+                            )
+                        )
+                    }
+                ) {
                     CourseScreen()
                 }
-                composable("academicScreen") {
+                composable(
+                    route = "academicScreen",
+                    enterTransition = {
+                        slideInHorizontally(
+                            initialOffsetX = { it },
+                            animationSpec = tween(
+                                durationMillis = 400,
+                                easing = LinearOutSlowInEasing
+                            )
+                        )
+                    },
+                    exitTransition = {
+                        slideOutHorizontally(
+                            targetOffsetX = { it },
+                            animationSpec = tween(
+                                durationMillis = 400,
+                                easing = LinearOutSlowInEasing
+                            )
+                        )
+                    },
+                    popExitTransition = {
+                        slideOutHorizontally(
+                            targetOffsetX = { it },
+                            animationSpec = tween(
+                                durationMillis = 400,
+                                easing = LinearOutSlowInEasing
+                            )
+                        )
+                    },
+                    popEnterTransition = {
+                        slideInHorizontally(
+                            initialOffsetX = { it },
+                            animationSpec = tween(
+                                durationMillis = 400,
+                                easing = LinearOutSlowInEasing
+                            )
+                        )
+                    }
+                ) {
                     AcademicScreen(navController)
                 }
 
-                composable("configScreen") {
+                composable(
+                    route = "configScreen",
+                    enterTransition = {
+                        slideInHorizontally(
+                            initialOffsetX = { it },
+                            animationSpec = tween(
+                                durationMillis = 400,
+                                easing = LinearOutSlowInEasing
+                            )
+                        )
+                    },
+                    exitTransition = {
+                        slideOutHorizontally(
+                            targetOffsetX = { it },
+                            animationSpec = tween(
+                                durationMillis = 400,
+                                easing = LinearOutSlowInEasing
+                            )
+                        )
+                    },
+                    popExitTransition = {
+                        slideOutHorizontally(
+                            targetOffsetX = { it },
+                            animationSpec = tween(
+                                durationMillis = 400,
+                                easing = LinearOutSlowInEasing
+                            )
+                        )
+                    },
+                    popEnterTransition = {
+                        slideInHorizontally(
+                            initialOffsetX = { it },
+                            animationSpec = tween(
+                                durationMillis = 400,
+                                easing = LinearOutSlowInEasing
+                            )
+                        )
+                    }
+                ) {
                     ConfigScreen()
                 }
             }
