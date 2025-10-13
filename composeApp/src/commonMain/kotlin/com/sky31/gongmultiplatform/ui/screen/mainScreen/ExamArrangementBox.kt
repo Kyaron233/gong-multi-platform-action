@@ -43,7 +43,7 @@ import com.sky31.gongmultiplatform.ui.viewModel.MainViewModel
 import com.sky31.gongmultiplatform.util.AnimationState
 import com.sky31.gongmultiplatform.util.DataState
 import gongmultiplatform.composeapp.generated.resources.Res
-import gongmultiplatform.composeapp.generated.resources.score
+import gongmultiplatform.composeapp.generated.resources.grade
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 
@@ -147,7 +147,7 @@ fun ExamArrangementBox(
                 }
             ) {
                 Icon(
-                    painter = painterResource(Res.drawable.score),
+                    painter = painterResource(Res.drawable.grade),
                     contentDescription = "course",
                     modifier = Modifier
                         .size(20.dp)
@@ -192,7 +192,7 @@ fun ExamArrangementBox(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Icon(
-                                painter = painterResource(Res.drawable.score),
+                                painter = painterResource(Res.drawable.grade),
                                 contentDescription = "course",
                                 tint = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier
