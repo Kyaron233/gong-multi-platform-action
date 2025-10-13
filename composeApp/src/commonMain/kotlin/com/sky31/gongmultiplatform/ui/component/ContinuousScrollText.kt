@@ -7,13 +7,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun ContinuousScrollText(
     text: String,
-    modifier: Modifier = Modifier.width(60.dp)
+    modifier: Modifier = Modifier.width(60.dp),
+    style: TextStyle = MaterialTheme.typography.bodyMedium
 ) {
     Text(
         text = text,
@@ -26,6 +28,7 @@ fun ContinuousScrollText(
                 repeatDelayMillis = 1500,
                 spacing = MarqueeSpacing(20.dp)
             ),
-        overflow = TextOverflow.Visible
+        overflow = TextOverflow.Visible,
+        style = style
     )
 }

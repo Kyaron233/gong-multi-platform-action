@@ -68,12 +68,6 @@ fun BottomNavigationBar(
                     title = "空教室",
                     onClick = toEmptyClassroom
                 )
-
-                BottomNavigationItem(
-                    resource = Res.drawable.home,
-                    title = "社交圈",
-                    onClick = toHome
-                )
             }
         }
     }

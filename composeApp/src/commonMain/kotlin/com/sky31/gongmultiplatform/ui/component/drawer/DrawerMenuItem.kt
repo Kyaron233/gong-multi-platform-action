@@ -8,12 +8,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.unit.dp
+import com.sky31.gongmultiplatform.ui.component.ContinuousScrollText
 import gongmultiplatform.composeapp.generated.resources.Res
 import gongmultiplatform.composeapp.generated.resources.left_arrow
 import org.jetbrains.compose.resources.DrawableResource
@@ -24,7 +24,8 @@ fun DrawerMenuItem(
     iconResource: DrawableResource? = null,
     name: String,
     click: () -> Unit = {},
-    content: @Composable () -> Unit = {}
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit = {},
 ) {
     Row(
         modifier = Modifier
@@ -45,10 +46,10 @@ fun DrawerMenuItem(
             )
         }
 
-        Text(
+        ContinuousScrollText(
             text = name,
-            color = MaterialTheme.colorScheme.onSurface,
             style = MaterialTheme.typography.labelMedium,
+            modifier = modifier
         )
 
         Spacer(

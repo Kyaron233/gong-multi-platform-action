@@ -179,6 +179,23 @@ fun MainScreenDrawer(
                     .background(MaterialTheme.colorScheme.surface)
                     .padding(top = 8.dp, bottom = 8.dp),
             ) {
+                Column(
+                    modifier = Modifier
+                        .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 8.dp)
+                ) {
+                    Text(
+                        text = "当前版本",
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.labelMedium,
+                    )
+
+                    ContinuousScrollText(
+                       text = platformInfo.getVersionName(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    )
+                }
+
                 DrawerMenuItem(
                     name = "检查更新",
                     click = {
@@ -212,16 +229,11 @@ fun MainScreenDrawer(
                             LoadingRing(size = 12.dp)
                         }
                     }
-
-                    ContinuousScrollText(
-                        text = platformInfo.getVersionName(),
-                        modifier = Modifier
-                            .fillMaxWidth(0.5f),
-                    )
                 }
 
                 DrawerMenuItem(
-                    name = "权限申请与使用情况说明"
+                    name = "权限申请与使用情况说明",
+                    modifier = Modifier.fillMaxWidth(0.85f)
                 )
 
                 DrawerMenuItem(
