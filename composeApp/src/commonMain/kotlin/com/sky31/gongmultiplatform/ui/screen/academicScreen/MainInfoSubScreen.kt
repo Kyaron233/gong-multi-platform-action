@@ -140,22 +140,22 @@ fun MainInfoSubScreen(viewModel: AcademicViewModel) {
                     ) {
                         AcademicSingleInfoBox(
                             name = "必修排名",
-                            value = compulsoryRank?.majorRank.toString()
+                            value = compulsoryRank?.majorRank?.toString()
                         )
 
                         AcademicSingleInfoBox(
                             name = "必修班级排名",
-                            value = compulsoryRank?.classRank.toString()
+                            value = compulsoryRank?.classRank?.toString()
                         )
 
                         AcademicSingleInfoBox(
                             name = "总排名",
-                            value = totalRank?.majorRank.toString()
+                            value = totalRank?.majorRank?.toString()
                         )
 
                         AcademicSingleInfoBox(
                             name = "班级排名",
-                            value = totalRank?.classRank.toString()
+                            value = totalRank?.classRank?.toString()
                         )
                     }
                 }
