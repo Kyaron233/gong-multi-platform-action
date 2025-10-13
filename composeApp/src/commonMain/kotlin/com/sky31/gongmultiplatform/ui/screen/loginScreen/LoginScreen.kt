@@ -34,9 +34,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalAutofillManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.semantics.contentType
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -49,6 +53,7 @@ import androidx.navigation.NavController
 import com.sky31.gongmultiplatform.ui.component.LoadingButton
 import com.sky31.gongmultiplatform.ui.viewModel.AuthViewModel
 import com.sky31.gongmultiplatform.util.AuthState
+import com.sky31.gongmultiplatform.util.NetworkResult
 import com.sky31.gongmultiplatform.util.PlatformOperation
 import gongmultiplatform.composeapp.generated.resources.Res
 import gongmultiplatform.composeapp.generated.resources.login_logo
@@ -61,6 +66,7 @@ import org.jetbrains.compose.resources.painterResource
 fun LoginScreen(
     navController: NavController
 ) {
+    val autoFillManager = LocalAutofillManager.current
     val authViewModel: AuthViewModel = viewModel { AuthViewModel() }
 
     var username by remember { mutableStateOf("") }
@@ -181,7 +187,8 @@ fun LoginScreen(
             BasicTextField(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(start = 10.dp),
+                    .padding(start = 10.dp)
+                    .semantics { contentType = ContentType.Username },
                 singleLine = true,
                 textStyle = TextStyle(
                     fontSize = 16.sp,
@@ -223,7 +230,8 @@ fun LoginScreen(
             BasicTextField(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(start = 10.dp),
+                    .padding(start = 10.dp)
+                    .semantics { contentType = ContentType.Password },
                 singleLine = true,
                 textStyle = TextStyle(
                     fontSize = 16.sp,
@@ -274,7 +282,11 @@ fun LoginScreen(
                 .align(Alignment.CenterHorizontally),
             call = {
                 keyboardController?.hide()
-                authViewModel.login(username, password)
+                val result = authViewModel.login(username, password)
+
+                if(result is NetworkResult.Success) {
+                    autoFillManager?.commit()
+                }
             },
             text = "登录"
         )
