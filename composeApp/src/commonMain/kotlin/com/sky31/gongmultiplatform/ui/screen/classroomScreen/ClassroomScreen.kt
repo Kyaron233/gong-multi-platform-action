@@ -130,6 +130,8 @@ fun ClassroomScreen() {
                 )
             }
 
+            ClassroomTopBar(pagerState = pagerState)
+
             // 地点选择
             Box(
                 modifier = Modifier
