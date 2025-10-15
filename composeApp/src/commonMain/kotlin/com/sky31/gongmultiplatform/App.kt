@@ -15,13 +15,16 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.sky31.gongmultiplatform.ui.layout.MainLayout
 import com.sky31.gongmultiplatform.ui.screen.academicScreen.AcademicScreen
+import com.sky31.gongmultiplatform.ui.screen.clauseScreen.ClauseScreen
 import com.sky31.gongmultiplatform.ui.screen.configScreen.ConfigScreen
 import com.sky31.gongmultiplatform.ui.screen.courseScreen.CourseScreen
 import com.sky31.gongmultiplatform.ui.screen.loginScreen.LoginScreen
 import com.sky31.gongmultiplatform.ui.viewModel.AuthViewModel
 import com.sky31.gongmultiplatform.util.AuthState
+import com.sky31.gongmultiplatform.util.ClauseRoute
 
 @Composable
 fun App() {
@@ -235,6 +238,48 @@ fun App() {
                     }
                 ) {
                     ConfigScreen()
+                }
+
+                composable<ClauseRoute>(
+                    enterTransition = {
+                        slideInHorizontally(
+                            initialOffsetX = { it },
+                            animationSpec = tween(
+                                durationMillis = 400,
+                                easing = LinearOutSlowInEasing
+                            )
+                        )
+                    },
+                    exitTransition = {
+                        slideOutHorizontally(
+                            targetOffsetX = { it },
+                            animationSpec = tween(
+                                durationMillis = 400,
+                                easing = LinearOutSlowInEasing
+                            )
+                        )
+                    },
+                    popExitTransition = {
+                        slideOutHorizontally(
+                            targetOffsetX = { it },
+                            animationSpec = tween(
+                                durationMillis = 400,
+                                easing = LinearOutSlowInEasing
+                            )
+                        )
+                    },
+                    popEnterTransition = {
+                        slideInHorizontally(
+                            initialOffsetX = { it },
+                            animationSpec = tween(
+                                durationMillis = 400,
+                                easing = LinearOutSlowInEasing
+                            )
+                        )
+                    }
+                ) {backStackEntry ->
+                    val args = backStackEntry.toRoute<ClauseRoute>()
+                    ClauseScreen(args.clauseType, args.title)
                 }
             }
         }

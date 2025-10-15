@@ -38,6 +38,7 @@ import com.sky31.gongmultiplatform.ui.component.LoadingRing
 import com.sky31.gongmultiplatform.ui.component.rememberDialogState
 import com.sky31.gongmultiplatform.ui.viewModel.DrawerViewModel
 import com.sky31.gongmultiplatform.util.AppUpdateState
+import com.sky31.gongmultiplatform.util.ClauseRoute
 import com.sky31.gongmultiplatform.util.DataState
 import com.sky31.gongmultiplatform.util.Toast
 import com.sky31.gongmultiplatform.util.getAppUpdateState
@@ -233,15 +234,24 @@ fun MainScreenDrawer(
 
                 DrawerMenuItem(
                     name = "权限申请与使用情况说明",
-                    modifier = Modifier.fillMaxWidth(0.85f)
+                    modifier = Modifier.fillMaxWidth(0.85f),
+                    click = {
+                        navController.navigate(ClauseRoute("permissionsrequest", "权限申请与使用情况说明"))
+                    }
                 )
 
                 DrawerMenuItem(
-                    name = "隐私政策"
+                    name = "隐私政策",
+                    click = {
+                        navController.navigate(ClauseRoute("privacypolicy", "隐私政策"))
+                    }
                 )
 
                 DrawerMenuItem(
-                    name = "用户条款"
+                    name = "用户条款",
+                    click = {
+                        navController.navigate(ClauseRoute("userclause", "用户条款"))
+                    }
                 )
             }
 
