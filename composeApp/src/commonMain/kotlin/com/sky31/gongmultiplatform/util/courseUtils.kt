@@ -184,7 +184,7 @@ fun customTimeToString(customTime: CustomTime): String {
  *
  * @param dateTime 时间
  */
-private fun isSummerTime(
+fun isSummerTime(
     dateTime: LocalDateTime
 ): Boolean {
     val month = dateTime.month.ordinal + 1
@@ -200,7 +200,7 @@ private fun isSummerTime(
  *
  * @param date 时间
  */
-private fun isSummerTime(
+fun isSummerTime(
     date: LocalDate
 ): Boolean {
     val month = date.month.ordinal + 1
