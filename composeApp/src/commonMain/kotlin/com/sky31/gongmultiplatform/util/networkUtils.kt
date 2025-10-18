@@ -116,6 +116,14 @@ suspend fun safeApiCallsSequential(
     deferredResults.awaitAll()
 }
 
+fun checkResults(results: List<DataState>): Boolean {
+    for(result in results) {
+        if(result != DataState.Newest) return false
+    }
+
+    return true
+}
+
 object TokenState {
     private val _isExpired = MutableStateFlow(false)
     val isExpired = _isExpired.asStateFlow()

@@ -13,7 +13,9 @@ import com.sky31.gongmultiplatform.network.repository.ExamRepositoryImpl
 import com.sky31.gongmultiplatform.network.repository.PublicRepositoryImpl
 import com.sky31.gongmultiplatform.util.DataState
 import com.sky31.gongmultiplatform.util.NetworkResult
+import com.sky31.gongmultiplatform.util.checkResults
 import com.sky31.gongmultiplatform.util.codeToDataState
+import com.sky31.gongmultiplatform.util.doCourseReminderWork
 import com.sky31.gongmultiplatform.util.getCourseList
 import com.sky31.gongmultiplatform.util.safeApiCallsSequential
 import com.sky31.gongmultiplatform.util.toCourseMap
@@ -96,6 +98,10 @@ class MainViewModel: ViewModel(), KoinComponent {
                 { updateCourseList() }
             )
         )
+
+        if(checkResults(results)) {
+            doCourseReminderWork()
+        }
 
         _courseBoxState.value = results[1]
     }
