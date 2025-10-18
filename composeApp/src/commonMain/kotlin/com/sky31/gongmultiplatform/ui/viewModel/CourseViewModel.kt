@@ -10,7 +10,9 @@ import com.sky31.gongmultiplatform.network.repository.CourseRepositoryImpl
 import com.sky31.gongmultiplatform.network.repository.PublicRepositoryImpl
 import com.sky31.gongmultiplatform.util.DataState
 import com.sky31.gongmultiplatform.util.NetworkResult
+import com.sky31.gongmultiplatform.util.checkResults
 import com.sky31.gongmultiplatform.util.codeToDataState
+import com.sky31.gongmultiplatform.util.doCourseReminderWork
 import com.sky31.gongmultiplatform.util.getWeekNum
 import com.sky31.gongmultiplatform.util.isInThisWeek
 import com.sky31.gongmultiplatform.util.safeApiCallsSequential
@@ -60,7 +62,6 @@ class CourseViewModel: ViewModel(), KoinComponent {
             getCalendarFromLocal()
             getCourseMapFromLocal()
             updateCurrentWeekNum()
-
             update()
         }
     }
@@ -74,6 +75,10 @@ class CourseViewModel: ViewModel(), KoinComponent {
                 { updateCourseMap() }
             )
         )
+
+        if(checkResults(results)) {
+            doCourseReminderWork()
+        }
 
         _courseMapState.value = results[1]
     }
