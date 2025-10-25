@@ -108,7 +108,7 @@ fun ClassroomScreen() {
             // 时间信息
             Row(
                 modifier = Modifier
-                    .padding(top = 10.dp, bottom = 5.dp)
+                    .padding(bottom = 5.dp)
                     .fillMaxWidth()
                     .padding(start = 20.dp, end = 20.dp),
                 verticalAlignment = Alignment.Bottom

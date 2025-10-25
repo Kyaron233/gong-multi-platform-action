@@ -12,10 +12,10 @@ import com.sky31.gongmultiplatform.util.DataState
 import com.sky31.gongmultiplatform.util.NetworkResult
 import com.sky31.gongmultiplatform.util.checkResults
 import com.sky31.gongmultiplatform.util.codeToDataState
-import com.sky31.gongmultiplatform.util.doCourseReminderWork
 import com.sky31.gongmultiplatform.util.getWeekNum
 import com.sky31.gongmultiplatform.util.isInThisWeek
 import com.sky31.gongmultiplatform.util.safeApiCallsSequential
+import com.sky31.gongmultiplatform.util.scheduleCourseAlarm
 import com.sky31.gongmultiplatform.util.toCourseMap
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -76,9 +76,9 @@ class CourseViewModel: ViewModel(), KoinComponent {
             )
         )
 
-        if(checkResults(results)) {
-            doCourseReminderWork()
-        }
+//        if(checkResults(results)) {
+//            scheduleCourseAlarm()
+//        }
 
         _courseMapState.value = results[1]
     }

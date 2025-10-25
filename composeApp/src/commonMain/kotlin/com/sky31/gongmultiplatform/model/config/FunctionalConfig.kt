@@ -4,5 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class FunctionalConfig(
-    val reauthentication: Boolean = true
+    val notificationConfig: NotificationConfig = NotificationConfig(),
+    val authConfig: AuthConfig = AuthConfig(),
 )

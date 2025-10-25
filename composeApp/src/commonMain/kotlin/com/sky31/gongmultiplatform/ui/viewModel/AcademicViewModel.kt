@@ -32,10 +32,14 @@ class AcademicViewModel: ViewModel(), KoinComponent {
     private val _totalRank = MutableStateFlow<RankData?>(null)
     val totalRank = _totalRank.asStateFlow()
 
-    private val majorAcademicInfoState = MutableStateFlow<DataState>(DataState.Uninitialized)
-    private val minorAcademicInfoState = MutableStateFlow<DataState>(DataState.Uninitialized)
-    private val compulsoryRankState = MutableStateFlow<DataState>(DataState.Uninitialized)
-    private val totalRankState = MutableStateFlow<DataState>(DataState.Uninitialized)
+    private val _majorAcademicInfoState = MutableStateFlow<DataState>(DataState.Uninitialized)
+    val majorAcademicInfoState = _majorAcademicInfoState.asStateFlow()
+    private val _minorAcademicInfoState = MutableStateFlow<DataState>(DataState.Uninitialized)
+    val minorAcademicInfoState = _minorAcademicInfoState.asStateFlow()
+    private val _compulsoryRankState = MutableStateFlow<DataState>(DataState.Uninitialized)
+    val compulsoryRankState = _compulsoryRankState.asStateFlow()
+    private val _totalRankState = MutableStateFlow<DataState>(DataState.Uninitialized)
+    val totalRankState = _totalRankState.asStateFlow()
 
     init {
         viewModelScope.launch {
@@ -55,6 +59,11 @@ class AcademicViewModel: ViewModel(), KoinComponent {
                 { updateCompulsoryRank() }
             )
         )
+
+        _majorAcademicInfoState.value = results[0]
+        _minorAcademicInfoState.value = results[1]
+        _totalRankState.value = results[2]
+        _compulsoryRankState.value = results[3]
     }
 
     private suspend fun getMajorScoreFromLocal() {
@@ -150,6 +159,21 @@ class AcademicViewModel: ViewModel(), KoinComponent {
             is NetworkResult.Error -> {
                 return codeToDataState(result.code)
             }
+        }
+    }
+
+    fun resetLoadingState() {
+        if(_majorAcademicInfoState.value is DataState.Loading) {
+            _majorAcademicInfoState.value = DataState.Uninitialized
+        }
+        if(_minorAcademicInfoState.value is DataState.Loading) {
+            _minorAcademicInfoState.value = DataState.Uninitialized
+        }
+        if(_compulsoryRankState.value is DataState.Loading) {
+            _compulsoryRankState.value = DataState.Uninitialized
+        }
+        if(_totalRankState.value is DataState.Loading) {
+            _totalRankState.value = DataState.Uninitialized
         }
     }
 }

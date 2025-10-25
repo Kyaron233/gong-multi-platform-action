@@ -12,6 +12,14 @@ val LocalIsDarkTheme = staticCompositionLocalOf<Boolean> {
     error("No IsDarkTheme provided! Please wrap your app with IsDarkThemeProvider.")
 }
 
-val LocalNavController = staticCompositionLocalOf<NavController> {
-    error("No NavController provided")
+val LocalAuthNavController = staticCompositionLocalOf<NavController> {
+    error("No AuthNavController provided")
+}
+
+val LocalAppNavController = staticCompositionLocalOf<NavController> {
+    error("No AppNavController provided")
+}
+
+val LocalOverloadNavController = staticCompositionLocalOf<NavController> {
+    error("No OverloadNavController provided")
 }

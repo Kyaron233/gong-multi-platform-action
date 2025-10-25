@@ -37,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalAutofillManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.semantics.contentType
@@ -119,6 +120,7 @@ fun LoginScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
             .padding(top = 50.dp)
     ) {
         Box(
@@ -192,7 +194,9 @@ fun LoginScreen(
                 singleLine = true,
                 textStyle = TextStyle(
                     fontSize = 16.sp,
+                    color = MaterialTheme.colorScheme.onBackground
                 ),
+                cursorBrush = SolidColor(MaterialTheme.colorScheme.onBackground),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 decorationBox = { innerTextField ->
                     Box {
@@ -235,7 +239,9 @@ fun LoginScreen(
                 singleLine = true,
                 textStyle = TextStyle(
                     fontSize = 16.sp,
+                    color = MaterialTheme.colorScheme.onBackground
                 ),
+                cursorBrush = SolidColor(MaterialTheme.colorScheme.onBackground),
                 visualTransformation = if(passwordVisible.value) VisualTransformation.None else PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(
                     imeAction = ImeAction.Done,

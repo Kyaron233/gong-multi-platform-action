@@ -38,7 +38,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.sky31.gongmultiplatform.di.LocalNavController
+import com.sky31.gongmultiplatform.di.LocalAppNavController
 import com.sky31.gongmultiplatform.ui.viewModel.CourseViewModel
 import gongmultiplatform.composeapp.generated.resources.Res
 import gongmultiplatform.composeapp.generated.resources.baseline_arrow_back_ios_new_24
@@ -51,7 +51,7 @@ fun CourseTopBar(
 ) {
     val scope = rememberCoroutineScope()
     val viewModel: CourseViewModel = viewModel { CourseViewModel() }
-    val navController = LocalNavController.current
+    val navController = LocalAppNavController.current
     val colorScheme = MaterialTheme.colorScheme
 
     val calendar by viewModel.calendar.collectAsState()

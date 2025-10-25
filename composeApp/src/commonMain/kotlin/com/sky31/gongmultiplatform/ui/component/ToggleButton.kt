@@ -15,7 +15,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -45,13 +48,31 @@ fun ToggleButton(
     val backgroundColor = remember { Animatable(Color.Gray) }
     val animatableOffset = remember { Animatable(0f) }
 
-    LaunchedEffect(state) {
-        coroutineScope {
-            launch {
-                animatableOffset.animateTo(if (state) maxOffsetX else 0f)
+    // 记住最新的状态（用于动画目标值）
+    val currentState by rememberUpdatedState(state)
+
+    // 是否是首次组合
+    var isFirstComposition by remember { mutableStateOf(true) }
+
+    LaunchedEffect(currentState) {
+        if(isFirstComposition) {
+            isFirstComposition = false
+            coroutineScope {
+                launch {
+                    animatableOffset.snapTo(if (currentState) maxOffsetX else 0f)
+                }
+                launch {
+                    backgroundColor.snapTo(if (currentState) colorScheme.primary else Color.Gray)
+                }
             }
-            launch {
-                backgroundColor.animateTo(if (state) colorScheme.primary else Color.Gray)
+        } else {
+            coroutineScope {
+                launch {
+                    animatableOffset.animateTo(if (currentState) maxOffsetX else 0f)
+                }
+                launch {
+                    backgroundColor.animateTo(if (currentState) colorScheme.primary else Color.Gray)
+                }
             }
         }
     }

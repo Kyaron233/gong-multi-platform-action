@@ -19,7 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.sky31.gongmultiplatform.di.LocalNavController
+import com.sky31.gongmultiplatform.di.LocalAuthNavController
 import com.sky31.gongmultiplatform.di.viewModelModule
 import com.sky31.gongmultiplatform.ui.viewModel.AuthViewModel
 import kotlinx.coroutines.launch
@@ -32,7 +32,7 @@ fun DrawerBottomBar(
 ) {
     val scope = rememberCoroutineScope()
     val authViewModel: AuthViewModel = viewModel { AuthViewModel() }
-    val navController = LocalNavController.current
+    val navController = LocalAuthNavController.current
 
     Row(
         modifier = Modifier

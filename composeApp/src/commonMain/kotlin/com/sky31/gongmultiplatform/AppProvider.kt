@@ -9,10 +9,8 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import com.sky31.gongmultiplatform.di.LocalGlobalConfig
 import com.sky31.gongmultiplatform.di.LocalIsDarkTheme
-import com.sky31.gongmultiplatform.di.LocalNavController
 import com.sky31.gongmultiplatform.ui.theme.ThemeMode
 import com.sky31.gongmultiplatform.ui.theme.darkColorScheme
 import com.sky31.gongmultiplatform.ui.theme.lightColorScheme
@@ -21,7 +19,6 @@ import com.sky31.gongmultiplatform.ui.viewModel.GlobalViewModel
 
 @Composable
 fun AppProvider(
-    navController: NavController,
     content: @Composable () -> Unit
 ) {
     val globalViewModel: GlobalViewModel = viewModel { GlobalViewModel() }
@@ -52,7 +49,6 @@ fun AppProvider(
         CompositionLocalProvider(
             LocalGlobalConfig provides globalConfig,
             LocalIsDarkTheme provides isDarkTheme.value,
-            LocalNavController provides navController
         ) {
             content()
         }

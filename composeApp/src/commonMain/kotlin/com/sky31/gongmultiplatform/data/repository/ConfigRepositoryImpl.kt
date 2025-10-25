@@ -3,8 +3,10 @@ package com.sky31.gongmultiplatform.data.repository
 import com.sky31.gongmultiplatform.data.local.dao.ConfigDao
 import com.sky31.gongmultiplatform.data.local.domain.ConfigEntity
 import com.sky31.gongmultiplatform.data.local.source.ConfigEntitySourceImpl
+import com.sky31.gongmultiplatform.model.config.AuthConfig
 import com.sky31.gongmultiplatform.model.config.FunctionalConfig
 import com.sky31.gongmultiplatform.model.config.GlobalConfig
+import com.sky31.gongmultiplatform.model.config.NotificationConfig
 import com.sky31.gongmultiplatform.ui.theme.ThemeMode
 import kotlinx.serialization.json.Json
 
@@ -55,6 +57,14 @@ class ConfigRepositoryImpl(
 
     override suspend fun getFunctionalConfig(): FunctionalConfig? {
         return source.getFunctionalConfig()?.let { Json.decodeFromString<FunctionalConfig>(it) }
+    }
+
+    override suspend fun getAuthConfig(): AuthConfig? {
+        return getFunctionalConfig()?.authConfig
+    }
+
+    override suspend fun getNotificationConfig(): NotificationConfig? {
+        return getFunctionalConfig()?.notificationConfig
     }
 
     override suspend fun deleteConfig() {

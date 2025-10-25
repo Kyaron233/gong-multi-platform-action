@@ -28,7 +28,7 @@ class ConfigEntitySourceImpl(
     }
 
     override suspend fun updateFunctionalConfig(config: String) {
-        dao.updateFunctionConfig(config)
+        dao.updateFunctionalConfig(config)
     }
 
     override suspend fun deleteAllConfigs() {

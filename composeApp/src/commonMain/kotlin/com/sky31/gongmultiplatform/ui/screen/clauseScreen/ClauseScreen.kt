@@ -9,12 +9,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavController
 import com.sky31.gongmultiplatform.SystemGlobalConfig
 import com.sky31.gongmultiplatform.ui.component.CustomWebView
 import com.sky31.gongmultiplatform.ui.component.ScaffoldTopBar
 
 @Composable
 fun ClauseScreen(
+    navController: NavController,
     route: String,
     title: String
 ) {
@@ -22,14 +24,17 @@ fun ClauseScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.primary)
+            .background(MaterialTheme.colorScheme.background)
     )
 
     Scaffold(
         modifier = Modifier
             .safeDrawingPadding(),
         topBar = {
-            ScaffoldTopBar(title)
+            ScaffoldTopBar(
+                navController = navController,
+                title = title
+            )
         },
     ) { innerPadding ->
 

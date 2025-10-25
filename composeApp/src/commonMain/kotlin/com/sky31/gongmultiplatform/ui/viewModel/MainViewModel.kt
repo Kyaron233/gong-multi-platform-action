@@ -2,20 +2,20 @@ package com.sky31.gongmultiplatform.ui.viewModel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sky31.gongmultiplatform.data.repository.ConfigRepositoryImpl
 import com.sky31.gongmultiplatform.data.repository.CourseDataRepositoryImpl
 import com.sky31.gongmultiplatform.data.repository.ExamDataRepositoryImpl
 import com.sky31.gongmultiplatform.data.repository.PublicDataRepositoryImpl
 import com.sky31.gongmultiplatform.model.CalendarData
 import com.sky31.gongmultiplatform.model.CourseElem
 import com.sky31.gongmultiplatform.model.ExamElem
+import com.sky31.gongmultiplatform.model.config.NotificationConfig
 import com.sky31.gongmultiplatform.network.repository.CourseRepositoryImpl
 import com.sky31.gongmultiplatform.network.repository.ExamRepositoryImpl
 import com.sky31.gongmultiplatform.network.repository.PublicRepositoryImpl
 import com.sky31.gongmultiplatform.util.DataState
 import com.sky31.gongmultiplatform.util.NetworkResult
-import com.sky31.gongmultiplatform.util.checkResults
 import com.sky31.gongmultiplatform.util.codeToDataState
-import com.sky31.gongmultiplatform.util.doCourseReminderWork
 import com.sky31.gongmultiplatform.util.getCourseList
 import com.sky31.gongmultiplatform.util.safeApiCallsSequential
 import com.sky31.gongmultiplatform.util.toCourseMap
@@ -39,6 +39,9 @@ class MainViewModel: ViewModel(), KoinComponent {
     private val courseDataRepository: CourseDataRepositoryImpl by inject()
     private val examDataRepository: ExamDataRepositoryImpl by inject()
     private val publicDataRepository: PublicDataRepositoryImpl by inject()
+    private val configRepository: ConfigRepositoryImpl by inject()
+
+    private val _notificationConfig = MutableStateFlow(NotificationConfig())
 
     private val _currentTime = MutableStateFlow(Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()))
     val currentTime = _currentTime.asStateFlow()
@@ -69,6 +72,7 @@ class MainViewModel: ViewModel(), KoinComponent {
             getCalendarFromLocal()
             getCourseListFromLocal()
             getExamListFromLocal()
+            getNotificationConfigFromLocal()
         }
     }
 
@@ -86,6 +90,10 @@ class MainViewModel: ViewModel(), KoinComponent {
             )
         )
 
+//        if(checkResults(results) && _notificationConfig.value.examNotification) {
+//            scheduleExamAlarm(_examList.value)
+//        }
+
         _examBoxState.value = results[1]
     }
 
@@ -99,9 +107,9 @@ class MainViewModel: ViewModel(), KoinComponent {
             )
         )
 
-        if(checkResults(results)) {
-            doCourseReminderWork()
-        }
+//        if(checkResults(results) && _notificationConfig.value.courseNotification) {
+//            scheduleCourseAlarm()
+//        }
 
         _courseBoxState.value = results[1]
     }
@@ -174,12 +182,26 @@ class MainViewModel: ViewModel(), KoinComponent {
         }
     }
 
+    suspend fun getNotificationConfigFromLocal() {
+        configRepository.getNotificationConfig()?.let {
+            _notificationConfig.value = it
+        }
+    }
+
     fun setProgression(progression: Float) {
         _progression.value = progression
     }
 
     fun setCompletedNum(num: Int) {
         _completedCourseNum.value = num
+    }
+
+    fun resetExamBoxState() {
+        _examBoxState.value = DataState.Uninitialized
+    }
+
+    fun resetCourseBoxState() {
+        _courseBoxState.value = DataState.Uninitialized
     }
 }
 

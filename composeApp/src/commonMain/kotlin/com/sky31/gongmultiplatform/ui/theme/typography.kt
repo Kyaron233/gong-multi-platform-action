@@ -12,7 +12,7 @@ val typography = Typography(
         fontWeight = FontWeight(800)
     ),
     titleMedium = TextStyle(
-        fontSize = 24.sp,
+        fontSize = 20.sp,
         fontWeight = FontWeight(800)
     ),
     labelMedium = TextStyle(

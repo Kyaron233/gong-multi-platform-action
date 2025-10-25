@@ -1,5 +1,6 @@
 package com.sky31.gongmultiplatform.ui.screen.mainScreen
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -58,7 +59,7 @@ fun MainScreen(
 
     Column(
         modifier = Modifier
-            .padding(top = 20.dp, start = 10.dp, end = 10.dp)
+            .padding(horizontal = 10.dp)
     ) {
         Row(
             modifier = Modifier
@@ -95,8 +96,15 @@ fun MainScreen(
                 .weight(1f)
                 .fillMaxWidth()
         ) {
-            TodayCourseBox(viewModel)
+            VerticalCourseBox(viewModel)
         }
+
+        Spacer(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(1.dp)
+                .background(MaterialTheme.colorScheme.surface)
+        )
 
         Box(
             modifier = Modifier
@@ -105,12 +113,5 @@ fun MainScreen(
         ) {
             ExamArrangementBox(viewModel)
         }
-
-        Spacer(
-            modifier = Modifier
-                .padding(top = 12.dp, bottom = 12.dp)
-                .fillMaxWidth()
-                .height(2.dp)
-        )
     }
 }

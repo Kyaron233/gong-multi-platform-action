@@ -1,6 +1,6 @@
 package com.sky31.gongmultiplatform
 
-import android.Manifest
+import android.app.AlarmManager
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -8,16 +8,18 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.core.app.ActivityCompat
 import com.sky31.gongmultiplatform.network.service.InstallService
+import com.sky31.gongmultiplatform.util.PermissionHelper
+import com.sky31.gongmultiplatform.util.setCourseAlarm
 import java.lang.ref.WeakReference
 
 class MainActivity: ComponentActivity() {
-
     companion object {
-        private var activityRef: WeakReference<MainActivity>? = null
+        private var activityRef: WeakReference<ComponentActivity>? = null
+        private var permissionHelper: WeakReference<PermissionHelper>? = null
 
-        fun getInstance(): MainActivity? = activityRef?.get()
+        fun getInstance(): ComponentActivity? = activityRef?.get()
+        fun getPermissionHelper(): PermissionHelper? = permissionHelper?.get()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,15 +27,7 @@ class MainActivity: ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         activityRef = WeakReference(this)
-
-        // TODO 之后移动到功能处
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.POST_NOTIFICATIONS),
-                100
-            )
-        }
+        permissionHelper = WeakReference(PermissionHelper(this))
 
         setContent {
             App()
@@ -45,6 +39,13 @@ class MainActivity: ComponentActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if (packageManager.canRequestPackageInstalls()) {
                 InstallService.onPermissionGranted()
+            }
+        }
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
+            if (alarmManager.canScheduleExactAlarms()) {
+                setCourseAlarm()
             }
         }
     }

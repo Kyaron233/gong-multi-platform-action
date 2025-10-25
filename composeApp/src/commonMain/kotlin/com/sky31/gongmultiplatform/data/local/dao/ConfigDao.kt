@@ -25,7 +25,7 @@ interface ConfigDao {
     suspend fun updateConfigEntity(data: ConfigEntity)
 
     @Query("UPDATE configEntity SET functional_config = :config")
-    suspend fun updateFunctionConfig(config: String)
+    suspend fun updateFunctionalConfig(config: String)
 
     @Query("DELETE FROM configEntity")
     suspend fun clearAll()

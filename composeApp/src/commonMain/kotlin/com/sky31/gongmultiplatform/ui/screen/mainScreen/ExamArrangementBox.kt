@@ -24,6 +24,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
@@ -36,7 +37,7 @@ import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.sky31.gongmultiplatform.di.LocalNavController
+import com.sky31.gongmultiplatform.di.LocalAppNavController
 import com.sky31.gongmultiplatform.ui.component.CustomScrollBox
 import com.sky31.gongmultiplatform.ui.component.DataLoadingRing
 import com.sky31.gongmultiplatform.ui.viewModel.MainViewModel
@@ -51,7 +52,7 @@ import org.jetbrains.compose.resources.painterResource
 fun ExamArrangementBox(
     viewModel: MainViewModel
 ) {
-    val navController = LocalNavController.current
+    val navController = LocalAppNavController.current
     val scope = rememberCoroutineScope()
 
     val currentTime by viewModel.currentTime.collectAsState()
@@ -69,12 +70,16 @@ fun ExamArrangementBox(
 
     val blurValue = remember { Animatable(0f) }
 
-    LaunchedEffect(examBoxState) {
-        println(examBoxState.toString())
+    DisposableEffect(Unit) {
         if(examBoxState is DataState.Uninitialized) {
-            // updateExamBox会修改examBoxState，导致LaunchedEffect重组，协程会被取消，所以需要使用rememberCoroutineScope的scope
             scope.launch {
                 viewModel.updateExamBox()
+            }
+        }
+
+        onDispose {
+            if(examBoxState is DataState.Loading) {
+                viewModel.resetExamBoxState()
             }
         }
     }

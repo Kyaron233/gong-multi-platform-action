@@ -25,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -34,7 +35,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.sky31.gongmultiplatform.di.LocalNavController
+import com.sky31.gongmultiplatform.di.LocalAuthNavController
 import com.sky31.gongmultiplatform.ui.viewModel.AuthViewModel
 import com.sky31.gongmultiplatform.ui.viewModel.ConfigViewModel
 import com.sky31.gongmultiplatform.util.NetworkResult
@@ -50,13 +51,13 @@ import org.koin.mp.KoinPlatform.getKoin
 fun AuthorizationDialog() {
     val state = rememberDialogState()
     val scope = rememberCoroutineScope()
-    val navController = LocalNavController.current
+    val navController = LocalAuthNavController.current
     val viewModel: AuthViewModel = viewModel { AuthViewModel() }
     val configViewModel: ConfigViewModel = getKoin().get<ConfigViewModel>()
 
     val visible by TokenState.isExpired.collectAsState()
     val username by viewModel.username.collectAsState()
-    val reauthentication by configViewModel.reauthentication.collectAsState()
+    val authConfig by configViewModel.authConfig.collectAsState()
 
     var passwordVisible by remember { mutableStateOf(false) }
     var password by remember { mutableStateOf("") }
@@ -68,7 +69,7 @@ fun AuthorizationDialog() {
     }
 
     LaunchedEffect(visible) {
-        if(reauthentication) {
+        if(authConfig.reauthentication) {
             if(visible) {
                 state.show()
             } else {
@@ -128,6 +129,7 @@ fun AuthorizationDialog() {
                         fontSize = 16.sp,
                         color = MaterialTheme.colorScheme.onSurface
                     ),
+                    cursorBrush = SolidColor(MaterialTheme.colorScheme.onBackground),
                     visualTransformation = if(passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     keyboardOptions = KeyboardOptions(
                         imeAction = ImeAction.Done,
