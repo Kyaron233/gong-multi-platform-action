@@ -145,19 +145,6 @@ fun ExamArrangementBox(
                     state = refreshState
                 )
             }
-
-            IconButton(
-                onClick = {
-                    navController.navigate("academicScreen")
-                }
-            ) {
-                Icon(
-                    painter = painterResource(Res.drawable.grade),
-                    contentDescription = "course",
-                    modifier = Modifier
-                        .size(20.dp)
-                )
-            }
         }
 
         // 考试列表容器

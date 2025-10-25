@@ -22,6 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
@@ -41,11 +42,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sky31.gongmultiplatform.ui.viewModel.ClassroomViewModel
+import com.sky31.gongmultiplatform.util.DataState
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.plus
+import org.koin.mp.KoinPlatform.getKoin
 
 // 课程时间段字符串
 val periodStrList = listOf("1-2", "3-4", "5-6", "7-8", "9-11")
@@ -54,11 +56,16 @@ val periodStrList = listOf("1-2", "3-4", "5-6", "7-8", "9-11")
 @Composable
 fun ClassroomScreen() {
     val scope = rememberCoroutineScope()
-    val viewModel: ClassroomViewModel = viewModel { ClassroomViewModel() }
+    val viewModel = getKoin().get<ClassroomViewModel>()
 
     // 地点列表的左右阴影颜色
     val shadowColor = MaterialTheme.colorScheme.background
 
+    // 数据状态
+    val todayClassroomState by viewModel.todayClassroomState.collectAsState()
+    val tomorrowClassroomState by viewModel.tomorrowClassroomState.collectAsState()
+
+    // 教室数据、时间和所有教室所在地点列表
     val todayClassroomMap by viewModel.todayClassroomMap.collectAsState()
     val todayDate by viewModel.todayDate.collectAsState()
     val tomorrowClassroomMap by viewModel.tomorrowClassroomMap.collectAsState()
@@ -73,6 +80,8 @@ fun ClassroomScreen() {
         initialPage = 0,
         pageCount = { 2 }
     )
+
+    // 当前教室所在地点和时间
     val currentLocation = remember { mutableStateOf<String?>(null) }
     val currentDate =
         remember { derivedStateOf { if (pagerState.currentPage == 0) todayDate else tomorrowDate } }
@@ -83,9 +92,22 @@ fun ClassroomScreen() {
     var refreshing by remember { mutableStateOf(false) }
 
     LaunchedEffect(locationList.value) {
-        println(locationList.value)
-
         currentLocation.value = locationList.value?.firstOrNull()
+    }
+
+    DisposableEffect(Unit) {
+        if(todayClassroomState is DataState.Uninitialized
+            || tomorrowClassroomState is DataState.Uninitialized) {
+            scope.launch {
+                refreshing = true
+                viewModel.update()
+                refreshing = false
+            }
+        }
+
+        onDispose {
+            viewModel.resetLoadingState()
+        }
     }
 
     PullToRefreshBox(

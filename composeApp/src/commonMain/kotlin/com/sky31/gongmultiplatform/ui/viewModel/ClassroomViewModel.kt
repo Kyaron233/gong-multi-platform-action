@@ -30,9 +30,14 @@ class ClassroomViewModel: ViewModel(), KoinComponent {
     private val _tomorrowClassroomMap = MutableStateFlow<Map<String, List<ClassroomData.ClassroomInfo>>?>(null)
     val tomorrowClassroomMap = _tomorrowClassroomMap.asStateFlow()
 
-
     private val _todayDate = MutableStateFlow(Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date)
     val todayDate = _todayDate.asStateFlow()
+
+    private val _todayClassroomState = MutableStateFlow<DataState>(DataState.Uninitialized)
+    val todayClassroomState = _todayClassroomState.asStateFlow()
+
+    private val _tomorrowClassroomState = MutableStateFlow<DataState>(DataState.Uninitialized)
+    val tomorrowClassroomState = _tomorrowClassroomState.asStateFlow()
 
     init {
         viewModelScope.launch {
@@ -44,12 +49,18 @@ class ClassroomViewModel: ViewModel(), KoinComponent {
     }
 
     suspend fun update() {
+        _todayClassroomState.value = DataState.Loading
+        _tomorrowClassroomState.value = DataState.Loading
+
         val results = safeApiCallsSequential(
             calls = listOf(
                 { updateTodayClassroom() },
                 { updateTomorrowClassroom() }
             )
         )
+
+        _todayClassroomState.value = results[0]
+        _tomorrowClassroomState.value = results[1]
     }
 
     private suspend fun getTodayClassroomFromLocal() {
@@ -97,6 +108,15 @@ class ClassroomViewModel: ViewModel(), KoinComponent {
             is NetworkResult.Error -> {
                 return codeToDataState(result.code)
             }
+        }
+    }
+
+    fun resetLoadingState() {
+        if (_todayClassroomState.value is DataState.Loading) {
+            _todayClassroomState.value = DataState.Uninitialized
+        }
+        if (_tomorrowClassroomState.value is DataState.Loading) {
+            _tomorrowClassroomState.value = DataState.Uninitialized
         }
     }
 }

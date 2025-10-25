@@ -22,17 +22,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sky31.gongmultiplatform.ui.component.AuthorizationDialog
 import com.sky31.gongmultiplatform.ui.viewModel.AcademicViewModel
 import com.sky31.gongmultiplatform.util.DataState
+import com.sky31.gongmultiplatform.util.Toast
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.koin.mp.KoinPlatform.getKoin
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AcademicScreen() {
     val scope = rememberCoroutineScope()
-    val viewModel: AcademicViewModel = viewModel { AcademicViewModel() }
+    val viewModel = getKoin().get<AcademicViewModel>()
     val pagerState = rememberPagerState(
         initialPage = 0,
         pageCount = { 2 }
@@ -46,10 +48,14 @@ fun AcademicScreen() {
 
     var refreshing by remember { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) {
-        refreshing = true
-        viewModel.update()
-        refreshing = false
+    LaunchedEffect(majorAcademicInfoState, minorAcademicInfoState, compulsoryRankState, totalRankState) {
+        if(majorAcademicInfoState is DataState.Loading
+            || minorAcademicInfoState is DataState.Loading
+            || compulsoryRankState is DataState.Loading
+            || totalRankState is DataState.Loading) {
+            delay(3000)
+            Toast.show("成绩单解析较慢，请稍等片刻")
+        }
     }
 
     DisposableEffect(Unit) {

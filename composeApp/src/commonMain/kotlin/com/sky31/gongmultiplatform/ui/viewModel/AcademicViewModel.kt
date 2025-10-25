@@ -51,6 +51,11 @@ class AcademicViewModel: ViewModel(), KoinComponent {
     }
 
     suspend fun update() {
+        _minorAcademicInfoState.value = DataState.Loading
+        _majorAcademicInfoState.value = DataState.Loading
+        _compulsoryRankState.value = DataState.Loading
+        _totalRankState.value = DataState.Loading
+
         val results = safeApiCallsSequential(
             calls = listOf(
                 { updateMajorAcademicInfo() },
