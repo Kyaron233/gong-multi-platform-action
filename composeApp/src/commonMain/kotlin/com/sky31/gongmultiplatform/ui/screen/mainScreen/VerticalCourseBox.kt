@@ -1,6 +1,11 @@
 package com.sky31.gongmultiplatform.ui.screen.mainScreen
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,6 +13,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -20,17 +26,21 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -40,12 +50,15 @@ import com.sky31.gongmultiplatform.di.LocalAppNavController
 import com.sky31.gongmultiplatform.model.CourseElem
 import com.sky31.gongmultiplatform.ui.component.CustomScrollBox
 import com.sky31.gongmultiplatform.ui.viewModel.MainViewModel
+import com.sky31.gongmultiplatform.util.DataState
 import com.sky31.gongmultiplatform.util.customTimeToString
 import com.sky31.gongmultiplatform.util.getCourseColor
 import com.sky31.gongmultiplatform.util.getCourseState
 import com.sky31.gongmultiplatform.util.getCourseTime
 import gongmultiplatform.composeapp.generated.resources.Res
 import gongmultiplatform.composeapp.generated.resources.course
+import gongmultiplatform.composeapp.generated.resources.update
+import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateTime
 import org.jetbrains.compose.resources.painterResource
 
@@ -53,11 +66,43 @@ import org.jetbrains.compose.resources.painterResource
 fun VerticalCourseBox(
     viewModel: MainViewModel
 ) {
+    val scope = rememberCoroutineScope()
     val navController = LocalAppNavController.current
     val colorScheme = MaterialTheme.colorScheme
 
     val currentTime by viewModel.currentTime.collectAsState()
     val courseList by viewModel.courseList.collectAsState()
+
+    val courseBoxState by viewModel.courseBoxState.collectAsState()
+
+    // 加载时动态模糊效果
+    val blurValue = remember { Animatable(0f) }
+
+    LaunchedEffect(courseBoxState) {
+        when(courseBoxState) {
+            is DataState.Loading -> {
+                blurValue.animateTo(
+                    targetValue = 10f,
+                    animationSpec = tween(
+                        durationMillis = 500,
+                        easing = FastOutSlowInEasing
+                    )
+                )
+            }
+
+            is DataState.Newest -> {
+                blurValue.animateTo(
+                    targetValue = 0f,
+                    animationSpec = tween(
+                        durationMillis = 500,
+                        easing = FastOutSlowInEasing
+                    )
+                )
+            }
+
+            else -> { /* TODO 显示错误信息和重试按钮 */ }
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -73,6 +118,7 @@ fun VerticalCourseBox(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .blur(blurValue.value.dp)
                     .drawWithContent {
                         drawContent() // 先绘制 Box 原内容
 
@@ -111,6 +157,48 @@ fun VerticalCourseBox(
                 }
             }
         }
+
+        AnimatedContent(
+            targetState = courseBoxState is DataState.Error
+        ) {targetState ->
+            if(targetState) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        // 消耗点击事件，防止下层响应
+                        .pointerInput(Unit) {
+                            awaitPointerEventScope {
+                                while (true) {
+                                    val event = awaitPointerEvent()
+                                    event.changes.forEach { it.consume() } // 👈 消费掉事件，防止下传
+                                }
+                            }
+                        },
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Icon(
+                        painter = painterResource(Res.drawable.update),
+                        contentDescription = "loadingRing",
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .size(40.dp)
+                            .clip(RoundedCornerShape(50))
+                            .clickable {
+                                scope.launch {
+                                    viewModel.updateExamBox()
+                                }
+                            }
+                    )
+
+                    Text(
+                        text = "重新加载",
+                        color = MaterialTheme.colorScheme.onBackground,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -119,7 +207,10 @@ fun NoCourseBox(
     navController: NavController
 ) {
     Column(
+        modifier = Modifier
+            .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
         Text(
             text = "今日无课",

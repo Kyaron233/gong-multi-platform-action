@@ -1,9 +1,11 @@
 package com.sky31.gongmultiplatform.ui.screen.mainScreen
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import com.sky31.gongmultiplatform.di.LocalAppNavController
 import com.sky31.gongmultiplatform.ui.component.CustomScrollBox
@@ -45,6 +48,7 @@ import com.sky31.gongmultiplatform.util.AnimationState
 import com.sky31.gongmultiplatform.util.DataState
 import gongmultiplatform.composeapp.generated.resources.Res
 import gongmultiplatform.composeapp.generated.resources.grade
+import gongmultiplatform.composeapp.generated.resources.update
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 
@@ -68,6 +72,7 @@ fun ExamArrangementBox(
         }
     }
 
+    // 加载时动态模糊效果
     val blurValue = remember { Animatable(0f) }
 
     DisposableEffect(Unit) {
@@ -158,7 +163,6 @@ fun ExamArrangementBox(
                 .padding(start = 5.dp, end = 5.dp, top = 10.dp, bottom = 10.dp),
             contentAlignment = Alignment.Center
         ) {
-
             if (examList.isEmpty()) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -210,6 +214,48 @@ fun ExamArrangementBox(
                         ExamBox(it, currentTime)
                     }
                 }
+            }
+        }
+    }
+
+    AnimatedContent(
+        targetState = examBoxState is DataState.Error
+    ) {targetState ->
+        if(targetState) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    // 消耗点击事件，防止下层响应
+                    .pointerInput(Unit) {
+                        awaitPointerEventScope {
+                            while (true) {
+                                val event = awaitPointerEvent()
+                                event.changes.forEach { it.consume() } // 👈 消费掉事件，防止下传
+                            }
+                        }
+                    },
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    painter = painterResource(Res.drawable.update),
+                    contentDescription = "loadingRing",
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .size(40.dp)
+                        .clip(RoundedCornerShape(50))
+                        .clickable {
+                            scope.launch {
+                                viewModel.updateExamBox()
+                            }
+                        }
+                )
+
+                Text(
+                    text = "重新加载",
+                    color = MaterialTheme.colorScheme.onBackground,
+                    style = MaterialTheme.typography.bodyMedium
+                )
             }
         }
     }
