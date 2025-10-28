@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -13,7 +12,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -48,63 +46,59 @@ fun AcademicBottomBar(pagerState: PagerState) {
         initialOffset = size.width / 4 - with(density) { 50.dp.toPx() }.toInt()
     }
 
-    BottomAppBar(
+
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .height(60.dp)
             .onSizeChanged {
                 size = it
             },
-        containerColor = Color.Transparent,
-        contentPadding = PaddingValues(0.dp)
     ) {
-        Column {
-            Row {
-                Text(
-                    modifier = Modifier
-                        .weight(1f)
-                        .clickable(
-                            indication = null,
-                            interactionSource = remember { MutableInteractionSource() }
-                        ) {
-                            scope.launch { pagerState.animateScrollToPage(0) }
-                        },
-                    text = "学业总览",
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    modifier = Modifier
-                        .weight(1f)
-                        .clickable(
-                            indication = null,
-                            interactionSource = remember { MutableInteractionSource() }
-                        ) {
-                            scope.launch { pagerState.animateScrollToPage(1) }
-                        },
-                    text = "成绩表单",
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
-            Box(
+        Row {
+            Text(
                 modifier = Modifier
-                    .offset {
-                        IntOffset(
-                            x = ((pagerState.currentPage + pagerState.currentPageOffsetFraction) * size.width / 2).toInt() + initialOffset,
-                            y = 0
-                        )
-                    }
-                    .scale(
-                        scaleX = 1 + abs(pagerState.currentPageOffsetFraction) * 1.5f,
-                        scaleY = 1 - abs(pagerState.currentPageOffsetFraction) * 0.5f
-                    )
-                    .width(100.dp)
-                    .height(10.dp)
-                    .clip(RoundedCornerShape(5.dp))
-                    .background(MaterialTheme.colorScheme.primary)
+                    .weight(1f)
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() }
+                    ) {
+                        scope.launch { pagerState.animateScrollToPage(0) }
+                    },
+                text = "学业总览",
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() }
+                    ) {
+                        scope.launch { pagerState.animateScrollToPage(1) }
+                    },
+                text = "成绩表单",
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
+
+        Box(
+            modifier = Modifier
+                .offset {
+                    IntOffset(
+                        x = ((pagerState.currentPage + pagerState.currentPageOffsetFraction) * size.width / 2).toInt() + initialOffset,
+                        y = 0
+                    )
+                }
+                .scale(
+                    scaleX = 1 + abs(pagerState.currentPageOffsetFraction) * 1.5f,
+                    scaleY = 1 - abs(pagerState.currentPageOffsetFraction) * 0.5f
+                )
+                .width(100.dp)
+                .height(10.dp)
+                .clip(RoundedCornerShape(5.dp))
+                .background(MaterialTheme.colorScheme.primary)
+        )
     }
 }
