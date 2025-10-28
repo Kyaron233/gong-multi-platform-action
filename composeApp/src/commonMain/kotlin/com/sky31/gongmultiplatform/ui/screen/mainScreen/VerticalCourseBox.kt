@@ -287,7 +287,7 @@ fun CourseBoxElem(
             Text(
                 text = customTimeToString(courseTime.value[0]),
                 color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.bodySmall
+                style = MaterialTheme.typography.bodyMedium
             )
 
             Text(
