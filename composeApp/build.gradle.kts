@@ -37,6 +37,9 @@ kotlin {
             implementation(libs.koin.android) // Android 特有
             implementation(libs.koin.androidx.compose) // Jetpack Compose 支持
             implementation(libs.androidx.work.runtime.ktx)
+            implementation(libs.androidx.glance.appwidget) // Jetpack Glance 支持
+            implementation(libs.androidx.glance.material3)
+
         }
 
         androidInstrumentedTest.dependencies {

@@ -19,6 +19,7 @@ import com.sky31.gongmultiplatform.util.codeToDataState
 import com.sky31.gongmultiplatform.util.getCourseList
 import com.sky31.gongmultiplatform.util.safeApiCallsSequential
 import com.sky31.gongmultiplatform.util.toCourseMap
+import com.sky31.gongmultiplatform.util.updateAppWidget
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -112,6 +113,8 @@ class MainViewModel: ViewModel(), KoinComponent {
 //        }
 
         _courseBoxState.value = results[1]
+
+        updateAppWidget()
     }
 
     suspend fun updateCourseList(): DataState {
