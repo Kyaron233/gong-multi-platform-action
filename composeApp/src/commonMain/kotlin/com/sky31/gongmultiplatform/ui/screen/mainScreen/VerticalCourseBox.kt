@@ -56,8 +56,8 @@ import com.sky31.gongmultiplatform.util.getCourseColor
 import com.sky31.gongmultiplatform.util.getCourseState
 import com.sky31.gongmultiplatform.util.getCourseTime
 import gongmultiplatform.composeapp.generated.resources.Res
+import gongmultiplatform.composeapp.generated.resources.baseline_refresh_24
 import gongmultiplatform.composeapp.generated.resources.course
-import gongmultiplatform.composeapp.generated.resources.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateTime
 import org.jetbrains.compose.resources.painterResource
@@ -100,7 +100,9 @@ fun VerticalCourseBox(
                 )
             }
 
-            else -> { /* TODO 显示错误信息和重试按钮 */ }
+            else -> {
+                blurValue.snapTo(10f)
+            }
         }
     }
 
@@ -118,84 +120,90 @@ fun VerticalCourseBox(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .blur(blurValue.value.dp)
-                    .drawWithContent {
-                        drawContent() // 先绘制 Box 原内容
-
-                        // 绘制遮罩层
-                        drawRect(
-                            brush = Brush.verticalGradient(
-                                colorStops = arrayOf(
-                                    0.0f to colorScheme.background,
-                                    0.1f to Color.Transparent,
-                                    0.9f to Color.Transparent,
-                                    1.0f to colorScheme.background
-                                ),
-                                startY = 0f,
-                                endY = size.height
-                            ),
-                            size = size,
-                            blendMode = BlendMode.SrcOver // 默认即可，用于覆盖在内容上
-                        )
-                    }
-                    .padding(start = 5.dp, end = 5.dp, top = 10.dp, bottom = 10.dp),
-                contentAlignment = Alignment.Center
             ) {
-                if (courseList.isEmpty()) {
-                    NoCourseBox(navController)
-                } else {
-                    CustomScrollBox(
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp),
-                        Alignment.CenterHorizontally
-                    ) {
-                        courseList.forEach { it ->
-                            CourseBoxElem(it, currentTime)
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .blur(blurValue.value.dp)
+                        .drawWithContent {
+                            drawContent() // 先绘制 Box 原内容
+
+                            // 绘制遮罩层
+                            drawRect(
+                                brush = Brush.verticalGradient(
+                                    colorStops = arrayOf(
+                                        0.0f to colorScheme.background,
+                                        0.1f to Color.Transparent,
+                                        0.9f to Color.Transparent,
+                                        1.0f to colorScheme.background
+                                    ),
+                                    startY = 0f,
+                                    endY = size.height
+                                ),
+                                size = size,
+                                blendMode = BlendMode.SrcOver // 默认即可，用于覆盖在内容上
+                            )
+                        }
+                        .padding(start = 5.dp, end = 5.dp, top = 10.dp, bottom = 10.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (courseList.isEmpty()) {
+                        NoCourseBox(navController)
+                    } else {
+                        CustomScrollBox(
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp),
+                            Alignment.CenterHorizontally
+                        ) {
+                            courseList.forEach { it ->
+                                CourseBoxElem(it, currentTime)
+                            }
                         }
                     }
                 }
-            }
-        }
 
-        AnimatedContent(
-            targetState = courseBoxState is DataState.Error
-        ) {targetState ->
-            if(targetState) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        // 消耗点击事件，防止下层响应
-                        .pointerInput(Unit) {
-                            awaitPointerEventScope {
-                                while (true) {
-                                    val event = awaitPointerEvent()
-                                    event.changes.forEach { it.consume() } // 👈 消费掉事件，防止下传
-                                }
-                            }
-                        },
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Icon(
-                        painter = painterResource(Res.drawable.update),
-                        contentDescription = "loadingRing",
-                        modifier = Modifier
-                            .padding(8.dp)
-                            .size(40.dp)
-                            .clip(RoundedCornerShape(50))
-                            .clickable {
-                                scope.launch {
-                                    viewModel.updateExamBox()
-                                }
-                            }
-                    )
+                /* 重新加载overlay */
+                AnimatedContent(
+                    targetState = courseBoxState is DataState.Error
+                ) {targetState ->
+                    if(targetState) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                // 消耗点击事件，防止下层响应
+                                .pointerInput(Unit) {
+                                    awaitPointerEventScope {
+                                        while (true) {
+                                            val event = awaitPointerEvent()
+                                            event.changes.forEach { it.consume() } // 消费掉事件，防止下传
+                                        }
+                                    }
+                                },
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Icon(
+                                painter = painterResource(Res.drawable.baseline_refresh_24),
+                                contentDescription = "loadingRing",
+                                modifier = Modifier
+                                    .padding(8.dp)
+                                    .size(40.dp)
+                                    .clip(RoundedCornerShape(50))
+                                    .clickable {
+                                        scope.launch {
+                                            viewModel.updateExamBox()
+                                        }
+                                    }
+                            )
 
-                    Text(
-                        text = "重新加载",
-                        color = MaterialTheme.colorScheme.onBackground,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
+                            Text(
+                                text = "重新加载",
+                                color = MaterialTheme.colorScheme.onBackground,
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                        }
+                    }
                 }
             }
         }
