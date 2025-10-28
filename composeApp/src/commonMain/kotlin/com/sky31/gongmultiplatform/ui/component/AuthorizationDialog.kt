@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sky31.gongmultiplatform.di.LocalAuthNavController
+import com.sky31.gongmultiplatform.di.viewModelModule
 import com.sky31.gongmultiplatform.ui.viewModel.AuthViewModel
 import com.sky31.gongmultiplatform.ui.viewModel.ConfigViewModel
 import com.sky31.gongmultiplatform.util.NetworkResult
@@ -45,6 +46,8 @@ import gongmultiplatform.composeapp.generated.resources.password_invisible
 import gongmultiplatform.composeapp.generated.resources.password_visible
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
+import org.koin.core.context.loadKoinModules
+import org.koin.core.context.unloadKoinModules
 import org.koin.mp.KoinPlatform.getKoin
 
 @Composable
@@ -213,6 +216,8 @@ fun AuthorizationDialog() {
                                 viewModel.logout()
                                 TokenState.refreshed()
                                 navController.navigate("login")
+                                unloadKoinModules(viewModelModule)
+                                loadKoinModules(viewModelModule)
                             }
                         }
                 )
