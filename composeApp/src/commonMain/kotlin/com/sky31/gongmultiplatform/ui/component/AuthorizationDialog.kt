@@ -178,7 +178,9 @@ fun AuthorizationDialog() {
                     done = {result ->
                         result?.let {
                             when(it) {
-                                is NetworkResult.Success -> TokenState.refreshed()
+                                is NetworkResult.Success -> {
+                                    TokenState.refreshed()
+                                }
                                 is NetworkResult.Error -> {
                                     errorMsg = it.message
                                     errorMsgVisible = true

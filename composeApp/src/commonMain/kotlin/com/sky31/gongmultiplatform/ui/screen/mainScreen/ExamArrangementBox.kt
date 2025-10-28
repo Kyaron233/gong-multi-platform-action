@@ -188,7 +188,7 @@ fun ExamArrangementBox(
 
             /* 重新加载overlay */
             AnimatedContent(
-                targetState = examBoxState is DataState.Error
+                targetState = examBoxState !is DataState.Newest && examBoxState !is DataState.Loading
             ) {targetState ->
                 if(targetState) {
                     Column(

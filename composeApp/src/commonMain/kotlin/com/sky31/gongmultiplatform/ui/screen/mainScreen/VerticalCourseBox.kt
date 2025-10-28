@@ -165,7 +165,7 @@ fun VerticalCourseBox(
 
                 /* 重新加载overlay */
                 AnimatedContent(
-                    targetState = courseBoxState is DataState.Error
+                    targetState = courseBoxState !is DataState.Newest && courseBoxState !is DataState.Loading
                 ) {targetState ->
                     if(targetState) {
                         Column(
@@ -192,7 +192,7 @@ fun VerticalCourseBox(
                                     .clip(RoundedCornerShape(50))
                                     .clickable {
                                         scope.launch {
-                                            viewModel.updateExamBox()
+                                            viewModel.updateCourseBox()
                                         }
                                     }
                             )
