@@ -47,7 +47,7 @@ fun MainInfoSubScreen(viewModel: AcademicViewModel) {
                     .fillMaxWidth()
                     .weight(3f)
             ) {
-                AcademicMainInfoBox()
+                AcademicMainInfoBox(viewModel)
             }
 
             // 英语Box

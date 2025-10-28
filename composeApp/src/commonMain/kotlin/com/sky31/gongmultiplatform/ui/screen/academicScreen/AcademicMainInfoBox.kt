@@ -35,14 +35,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sky31.gongmultiplatform.ui.component.CustomScrollBox
 import com.sky31.gongmultiplatform.ui.viewModel.AcademicViewModel
 
 @Composable
-fun AcademicMainInfoBox() {
+fun AcademicMainInfoBox(
+    viewModel: AcademicViewModel
+) {
     val colorScheme = MaterialTheme.colorScheme
-    val viewModel: AcademicViewModel = viewModel { AcademicViewModel() }
 
     val majorScore by viewModel.majorScore.collectAsState()
     val minorScore by viewModel.minorScore.collectAsState()
