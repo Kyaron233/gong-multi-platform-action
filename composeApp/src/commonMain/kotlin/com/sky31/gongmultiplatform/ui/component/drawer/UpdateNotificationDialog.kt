@@ -43,10 +43,8 @@ import com.sky31.gongmultiplatform.util.AppUpdateState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
-@Preview
 fun UpdateNotificationDialog(
     state: DialogState = rememberDialogState(),
     appUpdateState: AppUpdateState,

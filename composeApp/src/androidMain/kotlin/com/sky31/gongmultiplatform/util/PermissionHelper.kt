@@ -1,29 +1,41 @@
 package com.sky31.gongmultiplatform.util
 
 import android.Manifest
+import android.app.Activity.RESULT_OK
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context.NOTIFICATION_SERVICE
+import android.content.Intent
 import android.os.Build
+import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
+import com.sky31.gongmultiplatform.MainActivity
+import androidx.core.net.toUri
 
 class PermissionHelper(
     private val activity: ComponentActivity
 ) {
-    private val launcher = activity.registerForActivityResult(
+    private val notificationLauncher = activity.registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { granted ->
-        callback?.invoke(granted)
+        notificationCallback?.invoke(granted)
     }
 
-    private var callback: ((Boolean) -> Unit)? = null
+    private val installLauncher = activity.registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { granted ->
+        installCallback?.invoke(granted.resultCode == RESULT_OK)
+    }
+
+    private var notificationCallback: ((Boolean) -> Unit)? = null
+    private var installCallback: ((Boolean) -> Unit)? = null
 
     fun askPostNotificationPermission(onResult: (Boolean) -> Unit) {
         val hasPermission = hasPostNotificationPermission()
 
         if(!hasPermission && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            callback = {granted ->
+            notificationCallback = {granted ->
                 onResult(granted)
 
                 if(granted) {
@@ -41,7 +53,44 @@ class PermissionHelper(
                 }
             }
 
-            launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
+    }
+
+    fun hasPostNotificationPermission(): Boolean {
+        MainActivity.getInstance()?.let { context ->
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                return context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == android.content.pm.PackageManager.PERMISSION_GRANTED
+            }
+
+            return true
+        }
+
+        throw Exception("No MainActivity instance!")
+    }
+
+    fun askInstallPermission(onResult: (Boolean) -> Unit) {
+        val hasPermission = hasInstallPermission()
+
+        if(!hasPermission && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            installCallback = onResult
+
+            val intent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
+                data = "package:${activity.packageName}".toUri()
+            }
+            installLauncher.launch(intent)
+        }
+    }
+
+    fun hasInstallPermission(): Boolean {
+        MainActivity.getInstance()?.let { context ->
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                return context.packageManager.canRequestPackageInstalls()
+            }
+
+            return true
+        }
+
+        throw Exception("No MainActivity instance!")
     }
 }

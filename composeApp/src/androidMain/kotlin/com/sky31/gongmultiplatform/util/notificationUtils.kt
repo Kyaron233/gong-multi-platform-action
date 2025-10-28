@@ -117,22 +117,14 @@ actual fun scheduleExamAlarm(exams: List<ExamElem>) {
 }
 
 actual fun hasPostNotificationPermission(): Boolean {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        ContextCompat.checkSelfPermission(
-            ContextProvider.context,
-            Manifest.permission.POST_NOTIFICATIONS
-        ) == PackageManager.PERMISSION_GRANTED
-    } else {
-        true
-    }
+    val helper = MainActivity.getPermissionHelper()
+        ?: throw IllegalStateException("PermissionHelper 不存在")
+
+    return helper.hasPostNotificationPermission()
 }
 
 actual fun askPostNotificationPermission(onResult: (Boolean) -> Unit) {
-    val hasPermission = hasPostNotificationPermission()
-
-    if(!hasPermission && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        MainActivity.getPermissionHelper()?.apply {
-            askPostNotificationPermission(onResult)
-        }
+    MainActivity.getPermissionHelper()?.apply {
+        askPostNotificationPermission(onResult)
     }
 }

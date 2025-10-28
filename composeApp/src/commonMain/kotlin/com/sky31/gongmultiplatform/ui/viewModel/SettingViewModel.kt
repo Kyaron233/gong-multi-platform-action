@@ -35,7 +35,6 @@ class SettingViewModel: ViewModel(), KoinComponent {
                 return DataState.Newest
             }
             is NetworkResult.Error -> {
-                println(result.toString())
                 return DataState.Error(result.message)
             }
         }

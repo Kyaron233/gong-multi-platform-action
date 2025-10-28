@@ -3,31 +3,24 @@ package com.sky31.gongmultiplatform.network.service
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.provider.Settings
 import androidx.core.content.FileProvider
-import androidx.core.net.toUri
 import com.sky31.gongmultiplatform.network.HttpClientProvider
 import com.sky31.gongmultiplatform.network.api.ResourceApiImpl
 import io.ktor.client.statement.bodyAsChannel
 import io.ktor.utils.io.jvm.javaio.copyTo
-import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.suspendCancellableCoroutine
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.util.zip.ZipInputStream
-import kotlin.coroutines.resume
 
 actual object InstallService: KoinComponent {
     private val context: Context by inject()
     private val clientProvider: HttpClientProvider by inject()
 
     private val resourceApi = ResourceApiImpl(clientProvider.client)
-
-    private var continuation: CancellableContinuation<Unit>? = null
 
     actual suspend fun downloadApk(url: String): Flow<Int> {
         try {
@@ -68,6 +61,11 @@ actual object InstallService: KoinComponent {
     }
 
     actual suspend fun installApk() {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
+            !context.packageManager.canRequestPackageInstalls()) {
+            throw Error("No install permission!")
+        }
+
         val apkDir = File(context.cacheDir, "release")
 
         val fileList = apkDir.list()
@@ -76,21 +74,6 @@ actual object InstallService: KoinComponent {
             if(fileList[0] !is String) {
                 throw Error("apk file not found")
             }
-
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
-                !context.packageManager.canRequestPackageInstalls()) {
-                suspendCancellableCoroutine {cont ->
-                    continuation = cont
-                    val intent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
-                        data = "package:${context.packageName}".toUri()
-                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                    }
-
-                    context.startActivity(intent)
-                }
-            }
-
-            println(fileList[0])
 
             val apkFile = File(apkDir, fileList[0])
 
@@ -109,10 +92,5 @@ actual object InstallService: KoinComponent {
         } else {
             throw Error("apk file not found")
         }
-    }
-
-    fun onPermissionGranted() {
-        continuation?.resume(Unit)
-        continuation = null
     }
 }

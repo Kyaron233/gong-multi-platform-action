@@ -24,6 +24,7 @@ import androidx.navigation.compose.rememberNavController
 import com.sky31.gongmultiplatform.di.LocalOverloadNavController
 import com.sky31.gongmultiplatform.ui.screen.overload.NotificationRequestScreen
 import com.sky31.gongmultiplatform.util.hasPostNotificationPermission
+import kotlinx.coroutines.delay
 
 @Composable
 fun OverloadNavHost() {
@@ -31,6 +32,7 @@ fun OverloadNavHost() {
 
     LaunchedEffect(Unit) {
         if(!hasPostNotificationPermission()) {
+            delay(500)
             navController.navigate("notificationRequest")
         }
     }

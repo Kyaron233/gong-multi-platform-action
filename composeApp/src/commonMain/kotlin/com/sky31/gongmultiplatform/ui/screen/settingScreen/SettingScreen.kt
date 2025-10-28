@@ -43,7 +43,9 @@ import com.sky31.gongmultiplatform.ui.viewModel.SettingViewModel
 import com.sky31.gongmultiplatform.util.AppUpdateState
 import com.sky31.gongmultiplatform.util.DataState
 import com.sky31.gongmultiplatform.util.Toast
+import com.sky31.gongmultiplatform.util.askInstallPermission
 import com.sky31.gongmultiplatform.util.getAppUpdateState
+import com.sky31.gongmultiplatform.util.hasInstallPermission
 import gongmultiplatform.composeapp.generated.resources.Res
 import gongmultiplatform.composeapp.generated.resources.authentication
 import gongmultiplatform.composeapp.generated.resources.notification
@@ -71,6 +73,36 @@ fun SettingScreen(
     val appUpdateState by remember {
         derivedStateOf {
             updateData?.let { getAppUpdateState(platformInfo.getVersionName(), it.lastVersion, it.leastVersion) }
+        }
+    }
+
+    val checkUpdate: suspend () -> Unit = {
+        loadingRingVisible = true
+        val result = settingViewModel.checkUpdate()
+        loadingRingVisible = false
+
+        when(result) {
+            is DataState.Newest ->
+                when(appUpdateState) {
+                    AppUpdateState.UP_TO_DATE -> Toast.show("当前为最新版本")
+                    AppUpdateState.OPTIONAL_UPDATE -> dialogState.show()
+                    else -> {}
+                }
+            else -> {}
+        }
+    }
+
+    val triggerUpdate = {
+        val hasPermission = hasInstallPermission()
+
+        if(hasPermission) {
+            scope.launch { checkUpdate() }
+        } else {
+            askInstallPermission {granted ->
+                if(granted) {
+                    scope.launch { checkUpdate() }
+                }
+            }
         }
     }
 
@@ -128,21 +160,7 @@ fun SettingScreen(
                 icon = Res.drawable.update,
                 text = "检查更新",
                 click = {
-                    scope.launch {
-                        loadingRingVisible = true
-                        val result = settingViewModel.checkUpdate()
-                        loadingRingVisible = false
-
-                        when(result) {
-                            is DataState.Newest ->
-                                when(appUpdateState) {
-                                    AppUpdateState.UP_TO_DATE -> Toast.show("当前为最新版本")
-                                    AppUpdateState.OPTIONAL_UPDATE -> dialogState.show()
-                                    else -> {}
-                                }
-                            else -> {}
-                        }
-                    }
+                    triggerUpdate()
                 }
             ) {
                 AnimatedContent(
