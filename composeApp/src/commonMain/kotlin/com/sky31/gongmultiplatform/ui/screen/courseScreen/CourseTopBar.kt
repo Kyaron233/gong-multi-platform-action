@@ -6,22 +6,19 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,7 +30,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -52,7 +49,6 @@ fun CourseTopBar(
     val scope = rememberCoroutineScope()
     val viewModel: CourseViewModel = viewModel { CourseViewModel() }
     val navController = LocalAppNavController.current
-    val colorScheme = MaterialTheme.colorScheme
 
     val calendar by viewModel.calendar.collectAsState()
     var weekListState by remember { mutableStateOf(false) }
@@ -60,13 +56,12 @@ fun CourseTopBar(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(50.dp)
-            .background(MaterialTheme.colorScheme.primary)
-            .padding(start = 15.dp, end = 15.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        contentAlignment = Alignment.Center
     ) {
         Box(
             modifier = Modifier
-                .fillMaxSize(),
+                .fillMaxWidth(),
             contentAlignment = Alignment.Center
         ) {
             // 切换animate
@@ -80,26 +75,31 @@ fun CourseTopBar(
             ) { targetState ->
                 if (targetState) {
                     if (calendar != null) {
-                        Row(
+                        Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(start = 10.dp, end = 10.dp)
-                                .horizontalScroll(rememberScrollState())
+                                .padding(horizontal = 32.dp)
                         ) {
-                            Spacer(modifier = Modifier.width(25.dp))
-                            for (index in 1..calendar!!.weeks)
-                                Text(
-                                    modifier = Modifier
-                                        .padding(start = 10.dp, end = 10.dp)
-                                        .clickable {
-                                            scope.launch { state.scrollToPage(index - 1) }
-                                            weekListState = false
-                                        },
-                                    text = "$index",
-                                    color = Color.White
-                                )
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .horizontalScroll(rememberScrollState())
+                            ) {
+                                Spacer(modifier = Modifier.width(25.dp))
+                                for (index in 1..calendar!!.weeks)
+                                    Text(
+                                        modifier = Modifier
+                                            .padding(start = 10.dp, end = 10.dp)
+                                            .clickable {
+                                                scope.launch { state.scrollToPage(index - 1) }
+                                                weekListState = false
+                                            },
+                                        text = "$index",
+                                        color = Color.White
+                                    )
 
-                            Spacer(modifier = Modifier.width(25.dp))
+                                Spacer(modifier = Modifier.width(25.dp))
+                            }
                         }
                     }
                 } else {
@@ -112,41 +112,42 @@ fun CourseTopBar(
                     )
                 }
             }
-            Canvas(
-                modifier = Modifier
-                    .fillMaxSize()
-            ) {
-                drawRect(
-                    brush = Brush.horizontalGradient(
-                        colorStops = arrayOf(
-                            0.0f to colorScheme.primary,
-                            0.15f to Color.Transparent,
-                            0.70f to Color.Transparent,
-                            0.85f to colorScheme.primary,
-                        )
-                    ),
-                    size = size
-                )
-            }
         }
         // icon row 回退、日历下载、状态的层次
         Row(
             modifier = Modifier
-                .fillMaxSize(),
+                .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Image(
+            Box(
                 modifier = Modifier
-                    .padding(5.dp)
-                    .width(20.dp)
-                    .height(20.dp)
-                    .clickable(
-                        indication = null,
-                        interactionSource = remember { MutableInteractionSource() }
-                    ) { navController.navigate("main") },
-                painter = painterResource(Res.drawable.baseline_arrow_back_ios_new_24),
-                contentDescription = "left_arrow"
-            )
+                    .padding(end = 20.dp)
+                    .clip(RoundedCornerShape(50))
+                    .clickable {
+                        navController.navigate("main")
+                    }
+                    .padding(8.dp)
+            ) {
+                Icon(
+                    painter = painterResource(Res.drawable.baseline_arrow_back_ios_new_24),
+                    contentDescription = "back_arrow",
+                    tint = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier
+                        .size(24.dp)
+                )
+            }
+//            Image(
+//                modifier = Modifier
+//                    .padding(5.dp)
+//                    .width(20.dp)
+//                    .height(20.dp)
+//                    .clickable(
+//                        indication = null,
+//                        interactionSource = remember { MutableInteractionSource() }
+//                    ) { navController.navigate("main") },
+//                painter = painterResource(Res.drawable.baseline_arrow_back_ios_new_24),
+//                contentDescription = "left_arrow"
+//            )
 
             Spacer(modifier = Modifier.weight(1f))
         }

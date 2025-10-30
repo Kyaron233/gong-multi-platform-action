@@ -33,7 +33,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sky31.gongmultiplatform.ui.component.AuthorizationDialog
 import com.sky31.gongmultiplatform.ui.viewModel.CourseViewModel
@@ -73,11 +72,6 @@ fun CourseScreen() {
     }
 
     AuthorizationDialog()
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.primary)
-    )
 
     Scaffold(
         modifier = Modifier

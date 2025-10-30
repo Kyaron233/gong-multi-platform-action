@@ -65,7 +65,7 @@ fun MainScreen(
             modifier = Modifier
                 .wrapContentHeight()
                 .fillMaxWidth()
-                .padding(top = 5.dp, bottom = 5.dp),
+                .padding(bottom = 5.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(

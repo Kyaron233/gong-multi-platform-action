@@ -138,7 +138,7 @@ fun AboutScreen(
                         "隐私政策",
                         "查看我们如何收集、使用、存储和保护您的个人信息"
                     ) {
-                        navController.navigate(ClauseRoute("privacypolicy", "隐私政策"))
+                        navController.navigate(ClauseRoute("privacyPolicy", "隐私政策"))
                     }
                     Spacer(modifier = Modifier.fillMaxWidth().height(2.dp).background(MaterialTheme.colorScheme.background))
                     MenuItem(
@@ -148,7 +148,7 @@ fun AboutScreen(
                     ) {
                         navController.navigate(
                             ClauseRoute(
-                                "permissionsrequest",
+                                "permissionsRequest",
                                 "权限申请与使用情况说明"
                             )
                         )
@@ -159,7 +159,7 @@ fun AboutScreen(
                         "用户协议",
                         "使用拱拱之前，请务必仔细阅读并同意我们的用户协议"
                     ) {
-                        navController.navigate(ClauseRoute("userclause", "用户条款"))
+                        navController.navigate(ClauseRoute("userClause", "用户条款"))
                     }
                 }
             }
