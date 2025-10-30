@@ -39,6 +39,7 @@ import com.sky31.gongmultiplatform.db.getDatabaseBuilder
 import com.sky31.gongmultiplatform.model.CourseElem
 import com.sky31.gongmultiplatform.util.getCourseList
 import com.sky31.gongmultiplatform.util.getCourseTime
+import com.sky31.gongmultiplatform.util.toWeekdayNameCN
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -73,7 +74,6 @@ class CoursesAppWidget: GlanceAppWidget() {
                 .cornerRadius(12.dp)
                 .background(GlanceTheme.colors.background)
                 .padding(12.dp),
-
         ) {
             Row(
                 modifier = GlanceModifier
@@ -120,7 +120,7 @@ class CoursesAppWidget: GlanceAppWidget() {
                     horizontalAlignment = Alignment.End
                 ) {
                     Text(
-                        text = currentTime.dayOfWeek.toString(),
+                        text = toWeekdayNameCN(currentTime.dayOfWeek.ordinal + 1),
                         style = TextStyle(
                             color = GlanceTheme.colors.onBackground,
                             fontSize = 12.sp,
@@ -167,18 +167,6 @@ class CoursesAppWidget: GlanceAppWidget() {
                 }
             }
         }
-
-        Box(
-            modifier = GlanceModifier
-                .fillMaxSize()
-                .clickable(
-                    actionStartActivity(
-                        Intent("android.intent.action.MAIN").apply {
-                            setClassName("com.sky31.gongmultiplatform", "com.sky31.gongmultiplatform.MainActivity")
-                        }
-                    )
-                )
-        ) {  }
     }
 
     @Composable

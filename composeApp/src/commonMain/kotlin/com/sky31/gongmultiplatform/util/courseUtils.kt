@@ -242,3 +242,11 @@ fun getStartTime(date: LocalDate): List<CustomTime> {
         return winterStartTime
     }
 }
+
+fun toWeekdayNameCN(index: Int): String {
+    if(index < 1 || index > 7) {
+        throw Exception("weekday out of index")
+    }
+
+    return weekdayNameMapCN[index]!!
+}
