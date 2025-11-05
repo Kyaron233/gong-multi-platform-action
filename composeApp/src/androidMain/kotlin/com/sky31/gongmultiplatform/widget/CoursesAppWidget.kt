@@ -1,16 +1,13 @@
 package com.sky31.gongmultiplatform.widget
 
 import android.content.Context
-import android.content.Intent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
-import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
-import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.lazy.LazyColumn
 import androidx.glance.appwidget.lazy.items
@@ -77,36 +74,47 @@ class CoursesAppWidget: GlanceAppWidget() {
         ) {
             Row(
                 modifier = GlanceModifier
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .padding(bottom = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Row {
-                    Text(
-                        text = "${currentTime.month.ordinal + 1}",
-                        style = TextStyle(
-                            color = GlanceTheme.colors.onBackground,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold
+                Column {
+                    Row {
+                        Text(
+                            text = "${currentTime.month.ordinal + 1}",
+                            style = TextStyle(
+                                color = GlanceTheme.colors.onBackground,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold
+                            )
                         )
-                    )
+
+                        Text(
+                            text = "/",
+                            style = TextStyle(
+                                color = GlanceTheme.colors.primary,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold
+                            ),
+                            modifier = GlanceModifier
+                                .padding(horizontal = 5.dp)
+                        )
+
+                        Text(
+                            text = "${currentTime.day}",
+                            style = TextStyle(
+                                color = GlanceTheme.colors.onBackground,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        )
+                    }
 
                     Text(
-                        text = "/",
+                        text = "更新于${currentTime.hour.toString().padStart(2, '0')}:${currentTime.minute.toString().padStart(2, '0')}",
                         style = TextStyle(
-                            color = GlanceTheme.colors.primary,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold
-                        ),
-                        modifier = GlanceModifier
-                            .padding(horizontal = 5.dp)
-                    )
-
-                    Text(
-                        text = "${currentTime.day}",
-                        style = TextStyle(
-                            color = GlanceTheme.colors.onBackground,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold
+                            color = GlanceTheme.colors.onSurfaceVariant,
+                            fontSize = 8.sp,
                         )
                     )
                 }
