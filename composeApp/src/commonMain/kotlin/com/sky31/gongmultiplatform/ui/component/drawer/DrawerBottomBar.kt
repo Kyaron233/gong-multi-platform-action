@@ -18,21 +18,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.sky31.gongmultiplatform.di.LocalAuthNavController
-import com.sky31.gongmultiplatform.di.viewModelModule
 import com.sky31.gongmultiplatform.ui.viewModel.AuthViewModel
 import kotlinx.coroutines.launch
-import org.koin.core.context.loadKoinModules
-import org.koin.core.context.unloadKoinModules
+import org.koin.mp.KoinPlatform.getKoin
 
 @Composable
 fun DrawerBottomBar(
     state: DrawerState
 ) {
     val scope = rememberCoroutineScope()
-    val authViewModel: AuthViewModel = viewModel { AuthViewModel() }
-    val navController = LocalAuthNavController.current
+    val authViewModel = getKoin().get<AuthViewModel>()
 
     Row(
         modifier = Modifier
@@ -50,9 +45,6 @@ fun DrawerBottomBar(
                     scope.launch {
                         authViewModel.logout()
                         state.close()
-                        navController.navigate("login")
-                        unloadKoinModules(viewModelModule)
-                        loadKoinModules(viewModelModule)
                     }
                 }
                 .background(MaterialTheme.colorScheme.primary)

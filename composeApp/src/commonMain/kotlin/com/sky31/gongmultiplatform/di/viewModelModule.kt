@@ -1,6 +1,7 @@
 package com.sky31.gongmultiplatform.di
 
 import com.sky31.gongmultiplatform.ui.viewModel.AcademicViewModel
+import com.sky31.gongmultiplatform.ui.viewModel.AuthViewModel
 import com.sky31.gongmultiplatform.ui.viewModel.ClassroomViewModel
 import com.sky31.gongmultiplatform.ui.viewModel.ConfigViewModel
 import com.sky31.gongmultiplatform.ui.viewModel.MainViewModel
@@ -11,4 +12,8 @@ val viewModelModule = module {
     single<MainViewModel> { MainViewModel() }
     single<AcademicViewModel> { AcademicViewModel() }
     single<ClassroomViewModel> { ClassroomViewModel() }
+}
+
+val authViewModelModule = module {
+    single<AuthViewModel> { AuthViewModel() }
 }

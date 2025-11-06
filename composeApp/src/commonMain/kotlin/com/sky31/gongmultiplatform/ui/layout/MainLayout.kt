@@ -15,7 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.sky31.gongmultiplatform.ui.component.AuthorizationDialog
 import com.sky31.gongmultiplatform.ui.component.drawer.MainScreenDrawer
 import com.sky31.gongmultiplatform.ui.screen.academicScreen.AcademicScreen
 import com.sky31.gongmultiplatform.ui.screen.classroomScreen.ClassroomScreen
@@ -41,8 +40,6 @@ fun MainLayout() {
                 )
             }
         ) { innerPadding ->
-            AuthorizationDialog()
-
             Box(
                 modifier = Modifier
                     .fillMaxSize()

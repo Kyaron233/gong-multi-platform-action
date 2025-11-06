@@ -49,11 +49,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import com.sky31.gongmultiplatform.ui.component.LoadingButton
 import com.sky31.gongmultiplatform.ui.viewModel.AuthViewModel
-import com.sky31.gongmultiplatform.util.AuthState
 import com.sky31.gongmultiplatform.util.NetworkResult
 import com.sky31.gongmultiplatform.util.PlatformOperation
 import gongmultiplatform.composeapp.generated.resources.Res
@@ -62,13 +59,12 @@ import gongmultiplatform.composeapp.generated.resources.password_invisible
 import gongmultiplatform.composeapp.generated.resources.password_visible
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.painterResource
+import org.koin.mp.KoinPlatform.getKoin
 
 @Composable
-fun LoginScreen(
-    navController: NavController
-) {
+fun LoginScreen() {
     val autoFillManager = LocalAutofillManager.current
-    val authViewModel: AuthViewModel = viewModel { AuthViewModel() }
+    val authViewModel = getKoin().get<AuthViewModel>()
 
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -91,21 +87,14 @@ fun LoginScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
 
     LaunchedEffect(authState) {
-        when(authState) {
-            is AuthState.Authenticated -> {
-                navController.navigate("main")
-            }
-            is AuthState.Loading -> {
+        println(123)
 
-            }
-            is AuthState.Error -> {
-                alertText = (authState as AuthState.Error).message
-                alertVisible = true
-                delay(2500)
-                alertVisible = false
-                authViewModel.resetAuthState()
-            }
-            else -> {}
+        if (authState.errorMessage != null) {
+            alertText = authState.errorMessage!!
+            alertVisible = true
+            delay(2500)
+            alertVisible = false
+            authViewModel.resetAuthState()
         }
     }
 
@@ -289,10 +278,10 @@ fun LoginScreen(
                 .align(Alignment.CenterHorizontally),
             call = {
                 keyboardController?.hide()
-                val result = authViewModel.login(username, password)
-
-                if(result is NetworkResult.Success) {
-                    autoFillManager?.commit()
+                authViewModel.login(username, password) { result ->
+                    if(result is NetworkResult.Success) {
+                        autoFillManager?.commit()
+                    }
                 }
             },
             text = "登录"

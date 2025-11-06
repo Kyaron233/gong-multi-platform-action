@@ -24,8 +24,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalAutofillManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.semantics.contentType
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -34,11 +39,9 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.sky31.gongmultiplatform.di.LocalAuthNavController
-import com.sky31.gongmultiplatform.di.viewModelModule
 import com.sky31.gongmultiplatform.ui.viewModel.AuthViewModel
 import com.sky31.gongmultiplatform.ui.viewModel.ConfigViewModel
+import com.sky31.gongmultiplatform.ui.viewModel.LoginOptions
 import com.sky31.gongmultiplatform.util.NetworkResult
 import com.sky31.gongmultiplatform.util.TokenState
 import gongmultiplatform.composeapp.generated.resources.Res
@@ -46,20 +49,22 @@ import gongmultiplatform.composeapp.generated.resources.password_invisible
 import gongmultiplatform.composeapp.generated.resources.password_visible
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
-import org.koin.core.context.loadKoinModules
-import org.koin.core.context.unloadKoinModules
 import org.koin.mp.KoinPlatform.getKoin
 
 @Composable
 fun AuthorizationDialog() {
     val state = rememberDialogState()
     val scope = rememberCoroutineScope()
-    val navController = LocalAuthNavController.current
-    val viewModel: AuthViewModel = viewModel { AuthViewModel() }
+
+    val viewModel = getKoin().get<AuthViewModel>()
     val configViewModel: ConfigViewModel = getKoin().get<ConfigViewModel>()
+
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val autoFillManager = LocalAutofillManager.current
 
     val visible by TokenState.isExpired.collectAsState()
     val username by viewModel.username.collectAsState()
+    val authState by viewModel.authState.collectAsState()
     val authConfig by configViewModel.authConfig.collectAsState()
 
     var passwordVisible by remember { mutableStateOf(false) }
@@ -74,10 +79,20 @@ fun AuthorizationDialog() {
     LaunchedEffect(visible) {
         if(authConfig.reauthentication) {
             if(visible) {
+                password = ""
+                errorMsg = ""
+                errorMsgVisible = false
                 state.show()
             } else {
                 state.hide()
             }
+        }
+    }
+
+    LaunchedEffect(authState.errorMessage) {
+        if(authState.errorMessage != null) {
+            errorMsg = authState.errorMessage!!
+            errorMsgVisible = true
         }
     }
 
@@ -126,7 +141,8 @@ fun AuthorizationDialog() {
                 BasicTextField(
                     modifier = Modifier
                         .weight(1f)
-                        .padding(start = 10.dp),
+                        .padding(start = 10.dp)
+                        .semantics { contentType = ContentType.Password },
                     singleLine = true,
                     textStyle = TextStyle(
                         fontSize = 16.sp,
@@ -174,16 +190,23 @@ fun AuthorizationDialog() {
             ) {
                 LoadingButton(
                     text = "验证",
-                    call = { username?.let { viewModel.login(it, password) } },
-                    done = {result ->
-                        result?.let {
-                            when(it) {
-                                is NetworkResult.Success -> {
-                                    TokenState.refreshed()
-                                }
-                                is NetworkResult.Error -> {
-                                    errorMsg = it.message
-                                    errorMsgVisible = true
+                    call = {
+                        keyboardController?.hide()
+                        username?.let {
+                            viewModel.login(
+                                username = it,
+                                password = password,
+                                options = LoginOptions(needNavigation = false)
+                            ) { result ->
+                                when(result) {
+                                    is NetworkResult.Success -> {
+                                        TokenState.refreshed()
+                                        autoFillManager?.commit()
+                                    }
+                                    is NetworkResult.Error -> {
+                                        errorMsg = result.message
+                                        errorMsgVisible = true
+                                    }
                                 }
                             }
                         }
@@ -217,9 +240,6 @@ fun AuthorizationDialog() {
                             scope.launch {
                                 viewModel.logout()
                                 TokenState.refreshed()
-                                navController.navigate("login")
-                                unloadKoinModules(viewModelModule)
-                                loadKoinModules(viewModelModule)
                             }
                         }
                 )

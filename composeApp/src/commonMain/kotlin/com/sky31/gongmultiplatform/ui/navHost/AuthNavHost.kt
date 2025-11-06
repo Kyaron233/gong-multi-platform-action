@@ -11,14 +11,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.sky31.gongmultiplatform.di.LocalAuthNavController
+import com.sky31.gongmultiplatform.ui.component.AuthorizationDialog
+import com.sky31.gongmultiplatform.ui.component.ObserveAsEvents
 import com.sky31.gongmultiplatform.ui.screen.loginScreen.LoginScreen
 import com.sky31.gongmultiplatform.ui.viewModel.AuthViewModel
-import com.sky31.gongmultiplatform.util.AuthState
+import com.sky31.gongmultiplatform.ui.viewModel.NavigationEvent
+import org.koin.mp.KoinPlatform.getKoin
 
 /**
  * 认证路由
@@ -27,7 +29,23 @@ import com.sky31.gongmultiplatform.util.AuthState
 @Composable
 fun AuthNavHost() {
     val navController = rememberNavController()
-    val authViewModel: AuthViewModel = viewModel { AuthViewModel() }
+    val authViewModel = getKoin().get<AuthViewModel>()
+
+    ObserveAsEvents(authViewModel.navigationEventsChannelFlow) { event ->
+        println("collected!!!")
+        when(event) {
+            is NavigationEvent.ToMainScreen -> {
+                navController.navigate("main")
+            }
+            is NavigationEvent.ToLoginScreen -> {
+                navController.navigate("login") {
+                    popUpTo("login") {
+                        inclusive = true
+                    }
+                }
+            }
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -38,7 +56,7 @@ fun AuthNavHost() {
         ) {
             NavHost(
                 navController = navController,
-                startDestination = if (authViewModel.authState.value is AuthState.Authenticated) "main" else "login"
+                startDestination = if (authViewModel.authState.value.isAuthenticated) "main" else "login"
             ) {
                 composable(
                     route = "login",
@@ -71,7 +89,7 @@ fun AuthNavHost() {
                         )
                     },
                 ) {
-                    LoginScreen(navController)
+                    LoginScreen()
                 }
 
                 composable(
@@ -106,6 +124,8 @@ fun AuthNavHost() {
                     },
                 ) {
                     OverloadNavHost()
+
+                    AuthorizationDialog()
                 }
             }
         }

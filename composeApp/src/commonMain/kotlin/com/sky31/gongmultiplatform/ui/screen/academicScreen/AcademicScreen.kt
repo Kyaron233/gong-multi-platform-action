@@ -22,7 +22,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import com.sky31.gongmultiplatform.ui.component.AuthorizationDialog
 import com.sky31.gongmultiplatform.ui.viewModel.AcademicViewModel
 import com.sky31.gongmultiplatform.util.DataState
 import com.sky31.gongmultiplatform.util.Toast
@@ -75,7 +74,6 @@ fun AcademicScreen() {
         }
     }
 
-    AuthorizationDialog()
     Box(
         modifier = Modifier
             .fillMaxSize()

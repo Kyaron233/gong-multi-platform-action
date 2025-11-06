@@ -34,7 +34,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.sky31.gongmultiplatform.ui.component.AuthorizationDialog
 import com.sky31.gongmultiplatform.ui.viewModel.CourseViewModel
 import com.sky31.gongmultiplatform.util.CustomTime
 import com.sky31.gongmultiplatform.util.customTimeToString
@@ -70,8 +69,6 @@ fun CourseScreen() {
     LaunchedEffect(currentWeekNum) {
         pagerState.scrollToPage(currentWeekNum.toInt() - 1)
     }
-
-    AuthorizationDialog()
 
     Scaffold(
         modifier = Modifier

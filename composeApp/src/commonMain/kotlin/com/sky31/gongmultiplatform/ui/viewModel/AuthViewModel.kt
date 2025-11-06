@@ -8,8 +8,10 @@ import com.sky31.gongmultiplatform.data.repository.CourseDataRepositoryImpl
 import com.sky31.gongmultiplatform.data.repository.ExamDataRepositoryImpl
 import com.sky31.gongmultiplatform.data.repository.PublicDataRepositoryImpl
 import com.sky31.gongmultiplatform.data.repository.UserInfoDataRepositoryImpl
+import com.sky31.gongmultiplatform.di.viewModelModule
 import com.sky31.gongmultiplatform.model.bearerTokenStorage
 import com.sky31.gongmultiplatform.network.HttpClientProvider
+import com.sky31.gongmultiplatform.network.dto.AuthDto
 import com.sky31.gongmultiplatform.network.repository.AuthRepositoryImpl
 import com.sky31.gongmultiplatform.util.AuthState
 import com.sky31.gongmultiplatform.util.NetworkResult
@@ -17,10 +19,14 @@ import com.sky31.gongmultiplatform.util.authMsgMap
 import io.ktor.client.plugins.auth.authProvider
 import io.ktor.client.plugins.auth.providers.BearerAuthProvider
 import io.ktor.client.plugins.auth.providers.BearerTokens
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import org.koin.core.context.loadKoinModules
+import org.koin.core.context.unloadKoinModules
 
 class AuthViewModel: ViewModel(), KoinComponent {
     private val publicDataRepository: PublicDataRepositoryImpl by inject()
@@ -32,8 +38,11 @@ class AuthViewModel: ViewModel(), KoinComponent {
     private val authRepository: AuthRepositoryImpl by inject()
     private val settings: Settings by inject()
 
-    private val _authState: MutableStateFlow<AuthState> = MutableStateFlow(AuthState.Unauthenticated)
+    private val _authState: MutableStateFlow<AuthState> = MutableStateFlow(AuthState())
     val authState = _authState.asStateFlow()
+
+    private val navigationChannel = Channel<NavigationEvent>(Channel.BUFFERED)
+    val navigationEventsChannelFlow = navigationChannel.receiveAsFlow()
 
     private val _username = MutableStateFlow<String?>(null)
     val username = _username.asStateFlow()
@@ -51,20 +60,26 @@ class AuthViewModel: ViewModel(), KoinComponent {
 
         if(token !== null) {
             bearerTokenStorage.add(BearerTokens(token, ""))
-            _authState.value = AuthState.Authenticated
+            _authState.value.isAuthenticated = true
         } else {
-            _authState.value = AuthState.Unauthenticated
+            _authState.value.isAuthenticated = false
         }
     }
 
     fun resetAuthState() {
-        _authState.value = AuthState.Unauthenticated
+        _authState.value = AuthState()
     }
 
-    suspend fun login(username: String, password: String): NetworkResult<Unit> {
-        _authState.value = AuthState.Loading
+    suspend fun login(
+        username: String,
+        password: String,
+        options: LoginOptions = LoginOptions(),
+        onResult: (NetworkResult<AuthDto>) -> Unit = { }
+    ) {
+        _authState.value = _authState.value.copy(isLoading = true)
 
-        return when(val result = authRepository.login(username, password)) {
+        val result = authRepository.login(username, password)
+        when(result) {
             is NetworkResult.Success -> {
                 bearerTokenStorage.add(BearerTokens(result.data.accessToken, ""))
                 settings.putString("token", result.data.accessToken)
@@ -72,21 +87,29 @@ class AuthViewModel: ViewModel(), KoinComponent {
                 settings.putString("username", username)
                 _username.value = username
 
-                _authState.value = AuthState.Authenticated
+                _authState.value = _authState.value.copy(isLoading = false, isAuthenticated = true)
 
                 // 触发 loadTokens
                 HttpClientProvider.client.authProvider<BearerAuthProvider>()?.clearToken()
 
-                NetworkResult.Success(data = Unit)
+                if(options.needNavigation) {
+                    navigationChannel.send(NavigationEvent.ToMainScreen)
+                }
             }
 
             is NetworkResult.Error -> {
-                _authState.value = AuthState.Error(result.message)
-
-                NetworkResult.Error(message = result.code?.let { authMsgMap[it] } ?: "未知错误")
+                _authState.value = _authState.value.copy(
+                    isLoading = false,
+                    isAuthenticated = false,
+                    errorMessage = result.code?.let { authMsgMap[it] } ?: "未知错误"
+                )
             }
         }
+
+        onResult(result)
     }
+
+
 
     suspend fun logout() {
         publicDataRepository.deleteAllPublicData()
@@ -100,6 +123,20 @@ class AuthViewModel: ViewModel(), KoinComponent {
 
         settings.remove("token")
         settings.remove("username")
-        _authState.value = AuthState.Unauthenticated
+
+        unloadKoinModules(viewModelModule)
+        loadKoinModules(viewModelModule)
+
+        resetAuthState()
+        navigationChannel.send(NavigationEvent.ToLoginScreen)
     }
+}
+
+data class LoginOptions(
+    val needNavigation: Boolean = true
+)
+
+sealed class NavigationEvent {
+    data object ToLoginScreen: NavigationEvent()
+    data object ToMainScreen: NavigationEvent()
 }
