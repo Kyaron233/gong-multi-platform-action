@@ -85,8 +85,7 @@ fun SettingScreen(
             is DataState.Newest ->
                 when(appUpdateState) {
                     AppUpdateState.UP_TO_DATE -> Toast.show("当前为最新版本")
-                    AppUpdateState.OPTIONAL_UPDATE -> dialogState.show()
-                    else -> {}
+                    else -> dialogState.show()
                 }
             else -> {}
         }
