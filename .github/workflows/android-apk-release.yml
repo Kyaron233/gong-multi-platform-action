@@ -1,0 +1,78 @@
+name: Android APK Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+      - 'V*'
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Release tag (example: v3.1.0)'
+        required: true
+        type: string
+      release_name:
+        description: 'Release title (optional)'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    env:
+      RELEASE_TAG: ${{ github.event_name == 'push' && github.ref_name || github.event.inputs.tag_name }}
+      RELEASE_NAME: ${{ github.event_name == 'push' && github.ref_name || github.event.inputs.release_name }}
+      SYSTEM_HOST: ${{ vars.SYSTEM_HOST }}
+      SYSTEM_UPDATE_HOST: ${{ vars.SYSTEM_UPDATE_HOST }}
+      SYSTEM_WEB_HOST: ${{ vars.SYSTEM_WEB_HOST }}
+      SYSTEM_MAX_RETRY_TIMES: ${{ vars.SYSTEM_MAX_RETRY_TIMES }}
+      SYSTEM_RETRY_INTERVAL: ${{ vars.SYSTEM_RETRY_INTERVAL }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Gradle cache
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Ensure gradlew executable
+        run: chmod +x gradlew
+
+      - name: Build release APK
+        run: ./gradlew :composeApp:assembleRelease --stacktrace
+
+      - name: Locate APK
+        id: apk
+        shell: bash
+        run: |
+          APK_PATH="$(find composeApp/build/outputs/apk -type f -name "*release*.apk" | head -n 1)"
+          if [ -z "$APK_PATH" ]; then
+            echo "No release APK found under composeApp/build/outputs/apk"
+            exit 1
+          fi
+          echo "APK_PATH=$APK_PATH" >> "$GITHUB_ENV"
+          echo "apk_path=$APK_PATH" >> "$GITHUB_OUTPUT"
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-release-apk-${{ env.RELEASE_TAG }}
+          path: ${{ steps.apk.outputs.apk_path }}
+
+      - name: Create GitHub Release and upload APK
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.RELEASE_TAG }}
+          name: ${{ env.RELEASE_NAME != '' && env.RELEASE_NAME || format('Android {0}', env.RELEASE_TAG) }}
+          target_commitish: ${{ github.sha }}
+          generate_release_notes: true
+          files: ${{ steps.apk.outputs.apk_path }}
