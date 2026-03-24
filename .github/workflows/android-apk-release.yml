@@ -30,7 +30,7 @@ jobs:
       SYSTEM_WEB_HOST: ${{ vars.SYSTEM_WEB_HOST }}
       SYSTEM_MAX_RETRY_TIMES: ${{ vars.SYSTEM_MAX_RETRY_TIMES }}
       SYSTEM_RETRY_INTERVAL: ${{ vars.SYSTEM_RETRY_INTERVAL }}
-      ANDROID_KEYSTORE_BASE64: ${{ vars['gonggong-key-android'] }}
+      ANDROID_KEYSTORE_BASE64: ${{ vars['gonggong_key_android'] }}
       ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
       ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
       ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
