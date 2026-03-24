@@ -30,6 +30,10 @@ jobs:
       SYSTEM_WEB_HOST: ${{ vars.SYSTEM_WEB_HOST }}
       SYSTEM_MAX_RETRY_TIMES: ${{ vars.SYSTEM_MAX_RETRY_TIMES }}
       SYSTEM_RETRY_INTERVAL: ${{ vars.SYSTEM_RETRY_INTERVAL }}
+      ANDROID_KEYSTORE_BASE64: ${{ vars['gonggong-key-android'] }}
+      ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
 
     steps:
       - name: Checkout
@@ -46,6 +50,22 @@ jobs:
 
       - name: Ensure gradlew executable
         run: chmod +x gradlew
+
+      - name: Decode Android keystore
+        shell: bash
+        run: |
+          if [ -z "$ANDROID_KEYSTORE_BASE64" ]; then
+            echo "Missing variable: gonggong-key-android"
+            exit 1
+          fi
+
+          if [ -z "$ANDROID_KEYSTORE_PASSWORD" ] || [ -z "$ANDROID_KEY_ALIAS" ] || [ -z "$ANDROID_KEY_PASSWORD" ]; then
+            echo "Missing signing secrets: ANDROID_KEYSTORE_PASSWORD / ANDROID_KEY_ALIAS / ANDROID_KEY_PASSWORD"
+            exit 1
+          fi
+
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$GITHUB_WORKSPACE/android-signing-key.jks"
+          echo "ANDROID_KEYSTORE_PATH=$GITHUB_WORKSPACE/android-signing-key.jks" >> "$GITHUB_ENV"
 
       - name: Build release APK
         run: ./gradlew :composeApp:assembleRelease --stacktrace
