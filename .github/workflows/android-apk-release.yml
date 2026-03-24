@@ -1,4 +1,17 @@
-name: Android APK Release
+#  使用此workflow前，请先去settings/security/secrets&variables/配置secret和variables字段
+#  Secret:
+#   - ANDROID_KEYSTORE_PASSWORD 
+#   - ANDROID_KEY_ALIAS
+#   - ANDROID_KEY_PASSWORD
+#  Variables:
+#   - GONGGONG_KEY_ANDROID // 使用base64编码的Android key
+#   - SYSTEM_HOST // 拱拱的host
+#   - SYSTEM_MAX_RETRY_TIMES // 最多重试次数 (long)
+#   - SYSTEM_RETRY_INTERVAL // 重试的间隔时间 (int)
+#   - SYSTEM_UPDATE_HOST // 拱拱的更新host
+#   - SYSTEM_WEB_HOST // 拱拱的webhost
+
+name: 发布 Android APK
 
 on:
   push:
@@ -8,11 +21,11 @@ on:
   workflow_dispatch:
     inputs:
       tag_name:
-        description: 'Release tag (example: v3.1.0)'
+        description: 'Release tag'
         required: true
         type: string
       release_name:
-        description: 'Release标题(可选)'
+        description: 'Release title'
         required: false
         type: string
 
