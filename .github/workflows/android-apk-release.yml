@@ -12,7 +12,7 @@ on:
         required: true
         type: string
       release_name:
-        description: 'Release title (optional)'
+        description: 'Release标题(可选)'
         required: false
         type: string
 

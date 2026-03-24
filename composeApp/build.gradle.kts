@@ -1,5 +1,9 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
+fun envOrDefault(name: String, defaultValue: String): String {
+    return providers.environmentVariable(name).orElse(defaultValue).get()
+}
+
 val releaseKeystorePath = providers.environmentVariable("ANDROID_KEYSTORE_PATH").orNull
 val releaseStorePassword = providers.environmentVariable("ANDROID_KEYSTORE_PASSWORD").orNull
 val releaseKeyAlias = providers.environmentVariable("ANDROID_KEY_ALIAS").orNull
@@ -110,6 +114,10 @@ android {
     namespace = "com.sky31.gongmultiplatform"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
+    buildFeatures {
+        buildConfig = true
+    }
+
     if (hasReleaseSigning) {
         signingConfigs {
             create("release") {
@@ -128,6 +136,12 @@ android {
         versionCode = 1
         versionName = "3.1.20251108-beta"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "SYSTEM_HOST", "\"${envOrDefault("SYSTEM_HOST", "") }\"")
+        buildConfigField("String", "SYSTEM_UPDATE_HOST", "\"${envOrDefault("SYSTEM_UPDATE_HOST", "") }\"")
+        buildConfigField("String", "SYSTEM_WEB_HOST", "\"${envOrDefault("SYSTEM_WEB_HOST", "") }\"")
+        buildConfigField("int", "SYSTEM_MAX_RETRY_TIMES", envOrDefault("SYSTEM_MAX_RETRY_TIMES", "0"))
+        buildConfigField("long", "SYSTEM_RETRY_INTERVAL", "${envOrDefault("SYSTEM_RETRY_INTERVAL", "0")}L")
     }
     packaging {
         resources {
