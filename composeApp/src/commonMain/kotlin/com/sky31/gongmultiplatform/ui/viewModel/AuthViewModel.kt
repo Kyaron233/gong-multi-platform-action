@@ -101,7 +101,9 @@ class AuthViewModel: ViewModel(), KoinComponent {
                 _authState.value = _authState.value.copy(
                     isLoading = false,
                     isAuthenticated = false,
-                    errorMessage = result.code?.let { authMsgMap[it] } ?: "未知错误"
+                    errorMessage = result.code?.let { authMsgMap[it] }
+                        ?: result.message.takeIf { it.isNotBlank() && it != "Unknown error" }
+                        ?: "未知错误"
                 )
             }
         }

@@ -28,25 +28,15 @@ class AuthRepositoryImpl(
                     )
                 }
 
-                HttpStatusCode.Conflict,
-                HttpStatusCode.ServiceUnavailable,
-                HttpStatusCode.GatewayTimeout,
-                HttpStatusCode.Forbidden,
-                HttpStatusCode.Unauthorized ->
-                    NetworkResult.Error(
-                        code = code,
-                        message = authMsgMap[code] ?: "Unknown error"
-                    )
-
                 else ->
                     NetworkResult.Error(
                         code = code,
-                        message = response.toString()
+                        message = authMsgMap[code] ?: response.toString()
                     )
             }
         } catch (e: Exception) {
             return NetworkResult.Error(
-                message = e.message ?: "Unknown error",
+                message = e.message ?: e.toString(),
                 exception = e
             )
         }
